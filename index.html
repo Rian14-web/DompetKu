@@ -66,7 +66,6 @@
 
         <!-- 1. DASHBOARD TAB -->
         <section id="dashboard" class="tab-content space-y-6">
-            <!-- Net Worth & Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-gradient-to-br from-indigo-500 to-primary-700 text-white p-5 rounded-2xl shadow-lg md:col-span-2">
                     <p class="text-xs uppercase tracking-wider opacity-80 font-medium">Total Kekayaan Bersih (Net Worth)</p>
@@ -92,16 +91,13 @@
                 </div>
             </div>
 
-            <!-- Quick Action & Recent Assets Preview -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-base">Aset & Dompet Utama</h3>
                         <button onclick="switchTab('assets')" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">Kelola Aset</button>
                     </div>
-                    <div id="dashAssetList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Rendered via JS -->
-                    </div>
+                    <div id="dashAssetList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
                 <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                     <div>
@@ -115,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- Recent Transactions Table Preview -->
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-base">Transaksi Terbaru</h3>
@@ -132,9 +127,7 @@
                                 <th class="py-2 px-3 text-right">Jumlah</th>
                             </tr>
                         </thead>
-                        <tbody id="dashRecentTxTable">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="dashRecentTxTable"></tbody>
                     </table>
                 </div>
             </div>
@@ -154,7 +147,6 @@
                     </div>
                 </div>
 
-                <!-- Filters -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <input type="text" id="filterSearch" placeholder="Cari keterangan..." oninput="renderTransactions()" class="p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:border-primary-500">
                     <select id="filterType" onchange="renderTransactions()" class="p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:border-primary-500">
@@ -168,7 +160,6 @@
                     </select>
                 </div>
 
-                <!-- Transaction List -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
@@ -181,9 +172,7 @@
                                 <th class="py-3 px-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="fullTxTableBody">
-                            <!-- Rendered via JS -->
-                        </tbody>
+                        <tbody id="fullTxTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -199,10 +188,7 @@
                     </div>
                     <button onclick="openAssetModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Tambah Aset</button>
                 </div>
-
-                <div id="assetCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Rendered via JS -->
-                </div>
+                <div id="assetCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
         </section>
 
@@ -216,10 +202,7 @@
                     </div>
                     <button onclick="openGoalModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Target Baru</button>
                 </div>
-
-                <div id="savingsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Rendered via JS -->
-                </div>
+                <div id="savingsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </section>
 
@@ -233,7 +216,6 @@
                     </button>
                 </div>
 
-                <!-- Filters for Statistics -->
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
                     <div>
                         <label class="block text-xs font-medium text-gray-500 mb-1">Periode Waktu</label>
@@ -306,7 +288,6 @@
                 </button>
             </div>
 
-            <!-- Compound Interest Calc -->
             <div id="calcCompoundBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <h3 class="font-bold text-base mb-4">Kalkulator Pertumbuhan Investasi</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -331,7 +312,6 @@
                 <div id="cResult" class="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 rounded-xl text-sm hidden"></div>
             </div>
 
-            <!-- Loan Calc -->
             <div id="calcLoanBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hidden">
                 <h3 class="font-bold text-base mb-4">Kalkulator Cicilan Pinjaman</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -352,7 +332,6 @@
                 <div id="lResult" class="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 rounded-xl text-sm hidden"></div>
             </div>
 
-            <!-- Retirement Calc -->
             <div id="calcRetirementBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hidden">
                 <h3 class="font-bold text-base mb-4">Kalkulator Target Pensiun</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -395,21 +374,18 @@
                 </div>
                 <div id="txAssetContainer">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Pilih Aset / Rekening</label>
-                    <select id="txAssetId" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <!-- Loaded via JS -->
-                    </select>
+                    <select id="txAssetId" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"></select>
                 </div>
                 <div id="txDestAssetContainer" class="hidden">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Ke Aset / Rekening Tujuan</label>
-                    <select id="txDestAssetId" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <!-- Loaded via JS -->
-                    </select>
+                    <select id="txDestAssetId" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"></select>
                 </div>
                 <div id="txCategoryContainer">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Kategori</label>
-                    <select id="txCategory" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <!-- Loaded via JS -->
-                    </select>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-gray-500">Kategori</label>
+                        <button type="button" onclick="promptAddCategoryInModal()" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">+ Tambah Kategori Baru</button>
+                    </div>
+                    <select id="txCategory" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"></select>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="closeModal('txModal')" class="px-4 py-2 text-sm rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200">Batal</button>
@@ -493,15 +469,12 @@
             </form>
             <hr class="border-gray-100 dark:border-gray-700 my-4">
             <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Daftar Kategori Tersedia</h4>
-            <div id="categoryListContainer" class="max-h-48 overflow-y-auto space-y-2 pr-1">
-                <!-- Rendered via JS -->
-            </div>
+            <div id="categoryListContainer" class="max-h-48 overflow-y-auto space-y-2 pr-1"></div>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Default Data State
         let db = {
             assets: JSON.parse(localStorage.getItem('dompetku_assets')) || [
                 { id: '1', name: 'Dompet Tunai', category: 'Kas / Bank', balance: 500000 },
@@ -519,7 +492,6 @@
         let expenseChartInstance = null;
         let comparisonChartInstance = null;
 
-        // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -554,7 +526,6 @@
             document.getElementById('statEndDate').value = today;
         }
 
-        // Tab Switching
         function switchTab(targetId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(targetId).classList.remove('hidden');
@@ -584,7 +555,6 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
         }
 
-        // Populate Asset & Category Dropdowns
         function populateAssetSelects() {
             const selectTx = document.getElementById('txAssetId');
             const selectDest = document.getElementById('txDestAssetId');
@@ -605,11 +575,15 @@
 
         function populateCategorySelects() {
             const txCatSelect = document.getElementById('txCategory');
+            const currentTxCat = txCatSelect.value;
             let txCatHtml = '';
             db.categories.forEach(c => {
                 txCatHtml += `<option value="${c}">${c}</option>`;
             });
             txCatSelect.innerHTML = txCatHtml;
+            if(currentTxCat && db.categories.includes(currentTxCat)) {
+                txCatSelect.value = currentTxCat;
+            }
 
             const statCatSelect = document.getElementById('statCategoryFilter');
             const currentStatCat = statCatSelect.value;
@@ -621,7 +595,20 @@
             statCatSelect.value = currentStatCat;
         }
 
-        // Dashboard Renderer
+        function promptAddCategoryInModal() {
+            const newCat = prompt('Masukkan nama kategori baru:');
+            if(!newCat) return;
+            const trimmed = newCat.trim();
+            if(!trimmed) return;
+            if(db.categories.includes(trimmed)) {
+                alert('Kategori sudah ada!');
+                return;
+            }
+            db.categories.push(trimmed);
+            saveData();
+            document.getElementById('txCategory').value = trimmed;
+        }
+
         function renderDashboard() {
             let totalAsset = 0;
             let totalDebt = 0;
@@ -693,7 +680,6 @@
             document.getElementById('dashRecentTxTable').innerHTML = txHtml || '<tr><td colspan="5" class="py-4 text-center text-xs text-gray-400">Belum ada transaksi tercatat.</td></tr>';
         }
 
-        // Transactions Renderer
         function renderTransactions() {
             const search = document.getElementById('filterSearch').value.toLowerCase();
             const type = document.getElementById('filterType').value;
@@ -735,7 +721,6 @@
             document.getElementById('fullTxTableBody').innerHTML = html || '<tr><td colspan="6" class="py-6 text-center text-gray-400 text-sm">Tidak ada transaksi ditemukan.</td></tr>';
         }
 
-        // Assets Renderer
         function renderAssets() {
             let html = '';
             db.assets.forEach(a => {
@@ -762,7 +747,6 @@
             document.getElementById('assetCardsGrid').innerHTML = html || '<p class="text-gray-400 text-sm col-span-full text-center py-6">Belum ada aset terdaftar.</p>';
         }
 
-        // Savings Renderer
         function renderSavings() {
             let html = '';
             db.savings.forEach(g => {
@@ -790,7 +774,6 @@
             document.getElementById('savingsGrid').innerHTML = html || '<p class="text-gray-400 text-sm col-span-full text-center py-6">Belum ada target tabungan.</p>';
         }
 
-        // Category Manager Modal Control
         function openCategoryManagerModal() {
             renderCategoryList();
             document.getElementById('categoryModal').classList.remove('hidden');
@@ -834,7 +817,6 @@
             renderCategoryList();
         }
 
-        // Modals Control
         function openTransactionModal(type) {
             document.getElementById('txId').value = '';
             document.getElementById('txType').value = type;
@@ -889,7 +871,6 @@
             document.getElementById(modalId).classList.add('hidden');
         }
 
-        // Save Operations & Asset Balance Sync
         function saveTransaction(e) {
             e.preventDefault();
             const id = document.getElementById('txId').value || Date.now().toString();
@@ -1002,7 +983,6 @@
             }
         }
 
-        // Statistics & Charts
         function updateStatistics() {
             const period = document.getElementById('statPeriod').value;
             const typeFilter = document.getElementById('statTypeFilter').value;
@@ -1015,7 +995,6 @@
                 customContainer.classList.add('hidden');
             }
 
-            // Update title label
             const titleEl = document.getElementById('statChartTitle');
             titleEl.innerText = typeFilter === 'income' ? 'Distribusi Pemasukan by Kategori' : 'Distribusi Pengeluaran by Kategori';
 
@@ -1039,7 +1018,6 @@
                 }
             }
 
-            // Filter by Type (expense / income)
             filteredTx = filteredTx.filter(t => t.type === typeFilter);
 
             if(catFilter) {
@@ -1112,7 +1090,6 @@
             });
         }
 
-        // Calculators
         function switchCalc(type) {
             ['compound', 'loan', 'retirement'].forEach(t => {
                 document.getElementById(`calc${t.charAt(0).toUpperCase() + t.slice(1)}Box`).classList.add('hidden');
@@ -1178,7 +1155,6 @@
             `;
         }
 
-        // Export & Import Data
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
             const dlAnchor = document.createElement('a');
