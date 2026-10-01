@@ -181,12 +181,17 @@
         <!-- 3. ASSETS TAB -->
         <section id="assets" class="tab-content hidden space-y-6">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
                         <h2 class="text-lg font-bold">Manajemen Aset & Dompet</h2>
                         <p class="text-xs text-gray-500">Kelola rekening bank, dompet digital, investasi, atau utang Anda.</p>
                     </div>
-                    <button onclick="openAssetModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Tambah Aset</button>
+                    <div class="flex gap-2">
+                        <button onclick="openAssetCategoryManagerModal()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-xl text-xs font-semibold flex items-center">
+                            <i class="fa-solid fa-vault mr-1.5"></i>Kelola Kategori Aset
+                        </button>
+                        <button onclick="openAssetModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Tambah Aset</button>
+                    </div>
                 </div>
                 <div id="assetCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
@@ -212,7 +217,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <h2 class="text-lg font-bold">Statistik & Laporan Keuangan</h2>
                     <button onclick="openCategoryManagerModal()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-xl text-xs font-semibold flex items-center">
-                        <i class="fa-solid fa-tags mr-1.5"></i>Kelola Kategori Custom
+                        <i class="fa-solid fa-tags mr-1.5"></i>Kelola Kategori Transaksi
                     </button>
                 </div>
 
@@ -406,14 +411,11 @@
                     <input type="text" id="assetName" placeholder="Contoh: BCA Utama / Dompet Tunai" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Kategori Aset</label>
-                    <select id="assetCategory" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                        <option value="Kas / Bank">Kas / Bank</option>
-                        <option value="Investasi">Investasi</option>
-                        <option value="Properti">Properti</option>
-                        <option value="Kendaraan">Kendaraan</option>
-                        <option value="Utang / Liabilitas">Utang / Liabilitas</option>
-                    </select>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-gray-500">Kategori Aset</label>
+                        <button type="button" onclick="promptAddAssetCategoryInModal()" class="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">+ Kategori Aset Baru</button>
+                    </div>
+                    <select id="assetCategory" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"></select>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Saldo Awal / Nilai (Rp)</label>
@@ -457,7 +459,7 @@
     <div id="categoryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold">Kelola Kategori Custom</h3>
+                <h3 class="text-base font-bold">Kelola Kategori Transaksi</h3>
                 <button onclick="closeModal('categoryModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="addCustomCategory(event)" class="space-y-3 mb-4">
@@ -470,6 +472,26 @@
             <hr class="border-gray-100 dark:border-gray-700 my-4">
             <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Daftar Kategori Tersedia</h4>
             <div id="categoryListContainer" class="max-h-48 overflow-y-auto space-y-2 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Asset Category Manager Modal -->
+    <div id="assetCategoryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold">Kelola Kategori Aset</h3>
+                <button onclick="closeModal('assetCategoryModal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="addCustomAssetCategory(event)" class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Nama Kategori Aset Baru</label>
+                    <input type="text" id="newAssetCatName" placeholder="Contoh: Crypto, Emas, Piutang" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-xl text-sm font-medium">Tambah Kategori Aset</button>
+            </form>
+            <hr class="border-gray-100 dark:border-gray-700 my-4">
+            <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Daftar Kategori Aset Tersedia</h4>
+            <div id="assetCategoryListContainer" class="max-h-48 overflow-y-auto space-y-2 pr-1"></div>
         </div>
     </div>
 
@@ -486,6 +508,9 @@
             ],
             categories: JSON.parse(localStorage.getItem('dompetku_categories')) || [
                 'Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'
+            ],
+            assetCategories: JSON.parse(localStorage.getItem('dompetku_asset_categories')) || [
+                'Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'
             ]
         };
 
@@ -506,6 +531,7 @@
             localStorage.setItem('dompetku_tx', JSON.stringify(db.transactions));
             localStorage.setItem('dompetku_savings', JSON.stringify(db.savings));
             localStorage.setItem('dompetku_categories', JSON.stringify(db.categories));
+            localStorage.setItem('dompetku_asset_categories', JSON.stringify(db.assetCategories));
             updateAll();
         }
 
@@ -517,6 +543,7 @@
             updateStatistics();
             populateAssetSelects();
             populateCategorySelects();
+            populateAssetCategorySelects();
         }
 
         function setDefaultDate() {
@@ -595,8 +622,21 @@
             statCatSelect.value = currentStatCat;
         }
 
+        function populateAssetCategorySelects() {
+            const assetCatSelect = document.getElementById('assetCategory');
+            const currentVal = assetCatSelect.value;
+            let html = '';
+            db.assetCategories.forEach(c => {
+                html += `<option value="${c}">${c}</option>`;
+            });
+            assetCatSelect.innerHTML = html;
+            if(currentVal && db.assetCategories.includes(currentVal)) {
+                assetCatSelect.value = currentVal;
+            }
+        }
+
         function promptAddCategoryInModal() {
-            const newCat = prompt('Masukkan nama kategori baru:');
+            const newCat = prompt('Masukkan nama kategori transaksi baru:');
             if(!newCat) return;
             const trimmed = newCat.trim();
             if(!trimmed) return;
@@ -609,12 +649,112 @@
             document.getElementById('txCategory').value = trimmed;
         }
 
+        function promptAddAssetCategoryInModal() {
+            const newCat = prompt('Masukkan nama kategori aset baru:');
+            if(!newCat) return;
+            const trimmed = newCat.trim();
+            if(!trimmed) return;
+            if(db.assetCategories.includes(trimmed)) {
+                alert('Kategori aset sudah ada!');
+                return;
+            }
+            db.assetCategories.push(trimmed);
+            saveData();
+            document.getElementById('assetCategory').value = trimmed;
+        }
+
+        function openCategoryManagerModal() {
+            renderCategoryList();
+            document.getElementById('categoryModal').classList.remove('hidden');
+        }
+
+        function renderCategoryList() {
+            let html = '';
+            db.categories.forEach(c => {
+                html += `
+                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm">
+                        <span>${c}</span>
+                        <button onclick="deleteCustomCategory('${c}')" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            document.getElementById('categoryListContainer').innerHTML = html;
+        }
+
+        function addCustomCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('newCatName').value.trim();
+            if(!name) return;
+            if(db.categories.includes(name)) {
+                alert('Kategori sudah ada!');
+                return;
+            }
+            db.categories.push(name);
+            document.getElementById('newCatName').value = '';
+            saveData();
+            renderCategoryList();
+        }
+
+        function deleteCustomCategory(name) {
+            if(db.categories.length <= 1) {
+                alert('Minimal harus ada satu kategori!');
+                return;
+            }
+            if(!confirm(`Hapus kategori "${name}"?`)) return;
+            db.categories = db.categories.filter(c => c !== name);
+            saveData();
+            renderCategoryList();
+        }
+
+        function openAssetCategoryManagerModal() {
+            renderAssetCategoryList();
+            document.getElementById('assetCategoryModal').classList.remove('hidden');
+        }
+
+        function renderAssetCategoryList() {
+            let html = '';
+            db.assetCategories.forEach(c => {
+                html += `
+                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm">
+                        <span>${c}</span>
+                        <button onclick="deleteCustomAssetCategory('${c}')" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            document.getElementById('assetCategoryListContainer').innerHTML = html;
+        }
+
+        function addCustomAssetCategory(e) {
+            e.preventDefault();
+            const name = document.getElementById('newAssetCatName').value.trim();
+            if(!name) return;
+            if(db.assetCategories.includes(name)) {
+                alert('Kategori aset sudah ada!');
+                return;
+            }
+            db.assetCategories.push(name);
+            document.getElementById('newAssetCatName').value = '';
+            saveData();
+            renderAssetCategoryList();
+        }
+
+        function deleteCustomAssetCategory(name) {
+            if(db.assetCategories.length <= 1) {
+                alert('Minimal harus ada satu kategori aset!');
+                return;
+            }
+            if(!confirm(`Hapus kategori aset "${name}"?`)) return;
+            db.assetCategories = db.assetCategories.filter(c => c !== name);
+            saveData();
+            renderAssetCategoryList();
+        }
+
         function renderDashboard() {
             let totalAsset = 0;
             let totalDebt = 0;
 
             db.assets.forEach(a => {
-                if(a.category === 'Utang / Liabilitas') {
+                if(a.category.toLowerCase().includes('utang') || a.category.toLowerCase().includes('liabilitas')) {
                     totalDebt += Number(a.balance);
                 } else {
                     totalAsset += Number(a.balance);
@@ -646,13 +786,14 @@
 
             let assetHtml = '';
             db.assets.slice(0, 4).forEach(a => {
+                const isD = a.category.toLowerCase().includes('utang') || a.category.toLowerCase().includes('liabilitas');
                 assetHtml += `
                     <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 flex justify-between items-center">
                         <div>
                             <span class="text-xs text-gray-400 block">${a.category}</span>
                             <span class="font-semibold text-sm">${a.name}</span>
                         </div>
-                        <span class="font-bold text-sm ${a.category === 'Utang / Liabilitas' ? 'text-rose-600' : ''}">${formatRupiah(a.balance)}</span>
+                        <span class="font-bold text-sm ${isD ? 'text-rose-600' : ''}">${formatRupiah(a.balance)}</span>
                     </div>
                 `;
             });
@@ -724,7 +865,7 @@
         function renderAssets() {
             let html = '';
             db.assets.forEach(a => {
-                const isDebt = a.category === 'Utang / Liabilitas';
+                const isDebt = a.category.toLowerCase().includes('utang') || a.category.toLowerCase().includes('liabilitas');
                 html += `
                     <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                         <div>
@@ -772,49 +913,6 @@
                 `;
             });
             document.getElementById('savingsGrid').innerHTML = html || '<p class="text-gray-400 text-sm col-span-full text-center py-6">Belum ada target tabungan.</p>';
-        }
-
-        function openCategoryManagerModal() {
-            renderCategoryList();
-            document.getElementById('categoryModal').classList.remove('hidden');
-        }
-
-        function renderCategoryList() {
-            let html = '';
-            db.categories.forEach(c => {
-                html += `
-                    <div class="flex justify-between items-center p-2.5 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm">
-                        <span>${c}</span>
-                        <button onclick="deleteCustomCategory('${c}')" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-            });
-            document.getElementById('categoryListContainer').innerHTML = html;
-        }
-
-        function addCustomCategory(e) {
-            e.preventDefault();
-            const name = document.getElementById('newCatName').value.trim();
-            if(!name) return;
-            if(db.categories.includes(name)) {
-                alert('Kategori sudah ada!');
-                return;
-            }
-            db.categories.push(name);
-            document.getElementById('newCatName').value = '';
-            saveData();
-            renderCategoryList();
-        }
-
-        function deleteCustomCategory(name) {
-            if(db.categories.length <= 1) {
-                alert('Minimal harus ada satu kategori!');
-                return;
-            }
-            if(!confirm(`Hapus kategori "${name}"?`)) return;
-            db.categories = db.categories.filter(c => c !== name);
-            saveData();
-            renderCategoryList();
         }
 
         function openTransactionModal(type) {
@@ -1175,6 +1273,7 @@
                     if(parsed.assets && parsed.transactions) {
                         db = parsed;
                         if(!db.categories) db.categories = ['Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'];
+                        if(!db.assetCategories) db.assetCategories = ['Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'];
                         saveData();
                         alert('Data berhasil diimpor!');
                     } else {
