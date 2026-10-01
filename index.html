@@ -66,19 +66,22 @@
             
             <!-- Navigation Tabs (Desktop & Mobile header) -->
             <div class="flex bg-slate-200/60 dark:bg-slate-900 p-1.5 rounded-2xl overflow-x-auto no-scrollbar gap-1 border border-slate-200/60 dark:border-slate-800">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs">
                     <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
                 </button>
-                <button onclick="switchTab('transactions')" id="nav-transactions" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                <button onclick="switchTab('transactions')" id="nav-transactions" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
                     <i class="fa-solid fa-receipt"></i><span>Transaksi</span>
                 </button>
-                <button onclick="switchTab('statistics')" id="nav-statistics" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                <button onclick="switchTab('assets')" id="nav-assets" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-vault"></i><span>Aset & Dompet</span>
+                </button>
+                <button onclick="switchTab('statistics')" id="nav-statistics" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
                     <i class="fa-solid fa-chart-line"></i><span>Statistik</span>
                 </button>
-                <button onclick="switchTab('goals')" id="nav-goals" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                    <i class="fa-solid fa-bullseye"></i><span>Target Tabungan</span>
+                <button onclick="switchTab('goals')" id="nav-goals" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                    <i class="fa-solid fa-bullseye"></i><span>Target</span>
                 </button>
-                <button onclick="switchTab('calculator')" id="nav-calculator" class="tab-btn flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
+                <button onclick="switchTab('calculator')" id="nav-calculator" class="tab-btn flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition text-slate-600 dark:text-slate-400 hover:text-slate-900">
                     <i class="fa-solid fa-calculator"></i><span>Kalkulator</span>
                 </button>
             </div>
@@ -89,12 +92,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 relative overflow-hidden">
                         <div class="absolute right-4 top-4 w-10 h-10 bg-emerald-50 dark:bg-emerald-950/50 rounded-2xl flex items-center justify-center text-emerald-600">
-                            <i class="fa-solid fa-wallet"></i>
+                            <i class="fa-solid fa-vault"></i>
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Saldo</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Kekayaan Bersih (Aset)</p>
                         <h2 id="summaryBalance" class="text-2xl font-bold tracking-tight">Rp 0</h2>
                         <div class="flex items-center text-[11px] text-emerald-600 font-medium space-x-1">
-                            <i class="fa-solid fa-arrow-trend-up"></i><span>Keuangan Sehat</span>
+                            <i class="fa-solid fa-arrow-trend-up"></i><span>Akumulasi Seluruh Dompet & Aset</span>
                         </div>
                     </div>
 
@@ -169,7 +172,25 @@
                 </div>
             </div>
 
-            <!-- TAB: STATISTICS & FILTERED REPORTS -->
+            <!-- TAB 3: ASSETS & WALLETS (NEW) -->
+            <div id="tab-assets" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800">
+                    <div>
+                        <h3 class="font-bold text-sm">Manajemen Aset & Dompet</h3>
+                        <p class="text-xs text-slate-500">Kelola rekening bank, e-wallet, uang tunai, atau portofolio investasi Anda</p>
+                    </div>
+                    <button onclick="openModal('assetModal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl font-semibold text-xs flex items-center space-x-2 shadow-md transition">
+                        <i class="fa-solid fa-plus"></i><span>Tambah Aset Baru</span>
+                    </button>
+                </div>
+
+                <!-- Assets Grid -->
+                <div id="assetsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- TAB 4: STATISTICS & FILTERED REPORTS -->
             <div id="tab-statistics" class="tab-content hidden space-y-6">
                 <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
                     <div>
@@ -398,6 +419,12 @@
                     <input type="number" id="transAmount" required placeholder="Contoh: 150000" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div class="space-y-1">
+                    <label class="text-slate-500 font-medium">Aset / Dompet Sumber</label>
+                    <select id="transAsset" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="space-y-1">
                     <label class="text-slate-500 font-medium">Kategori</label>
                     <select id="transCategory" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         <!-- Populated dynamically -->
@@ -412,6 +439,38 @@
                     <input type="date" id="transDate" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-2xl shadow-md transition">Simpan Transaksi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD / EDIT ASSET (NEW) -->
+    <div id="assetModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 max-w-md w-full rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm">Tambah Aset / Dompet Baru</h3>
+                <button onclick="closeModal('assetModal')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200"><i class="fa-solid fa-xmark text-xs"></i></button>
+            </div>
+            <form id="assetForm" onsubmit="saveAsset(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="assetId">
+                <div class="space-y-1">
+                    <label class="text-slate-500 font-medium">Nama Aset / Dompet (Contoh: BCA, GoPay, Dompet Tunai)</label>
+                    <input type="text" id="assetName" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-slate-500 font-medium">Tipe Aset</label>
+                    <select id="assetType" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Cash / Bank">Cash / Bank Account</option>
+                        <option value="E-Wallet">E-Wallet (OVO, GoPay, Dana)</option>
+                        <option value="Investasi">Investasi / Reksa Dana / Saham</option>
+                        <option value="Properti / Fisik">Properti / Barang Berharga</option>
+                        <option value="Utang / Kewajiban">Utang / Pinjaman</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-slate-500 font-medium">Saldo / Nilai Aset Saat Ini (Rp)</label>
+                    <input type="number" id="assetBalance" value="0" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-2xl shadow-md transition">Simpan Aset</button>
             </form>
         </div>
     </div>
@@ -477,18 +536,30 @@
 
     <!-- APPLICATION JAVASCRIPT LOGIC -->
     <script>
-        // State Management
+        // State Management with Assets
         let appData = JSON.parse(localStorage.getItem('dompetku_data')) || {
+            assets: [
+                { id: 101, name: 'BCA Utama', type: 'Cash / Bank', balance: 7500000 },
+                { id: 102, name: 'GoPay / OVO', type: 'E-Wallet', balance: 500000 },
+                { id: 103, name: 'Dompet Tunai', type: 'Cash / Bank', balance: 500000 }
+            ],
             transactions: [
-                { id: 1, type: 'income', amount: 8500000, category: 'Gaji', note: 'Gaji Bulanan', date: new Date().toISOString().split('T')[0] },
-                { id: 2, type: 'expense', amount: 1500000, category: 'Makanan', note: 'Belanja Bulanan', date: new Date().toISOString().split('T')[0] },
-                { id: 3, type: 'expense', amount: 500000, category: 'Transport', note: 'Bensin & Parkir', date: new Date().toISOString().split('T')[0] }
+                { id: 1, type: 'income', amount: 8500000, category: 'Gaji', assetId: 101, note: 'Gaji Bulanan', date: new Date().toISOString().split('T')[0] },
+                { id: 2, type: 'expense', amount: 1500000, category: 'Makanan', assetId: 101, note: 'Belanja Bulanan', date: new Date().toISOString().split('T')[0] },
+                { id: 3, type: 'expense', amount: 500000, category: 'Transport', assetId: 102, note: 'Bensin & Parkir', date: new Date().toISOString().split('T')[0] }
             ],
             goals: [
                 { id: 1, name: 'Dana Darurat', target: 20000000, current: 8500000, deadline: '2026-12-31' },
                 { id: 2, name: 'Liburan Akhir Tahun', target: 6000000, current: 2500000, deadline: '2026-11-20' }
             ]
         };
+
+        // Ensure legacy data compatibility if assets missing
+        if(!appData.assets) {
+            appData.assets = [
+                { id: 101, name: 'Dompet Utama', type: 'Cash / Bank', balance: 5000000 }
+            ];
+        }
 
         const categories = {
             income: ['Gaji', 'Bonus', 'Investasi', 'Freelance', 'Lainnya'],
@@ -500,10 +571,8 @@
 
         // Initialize App on Load
         window.onload = function() {
-            // Set default date for forms
             document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
             
-            // Set default custom date range for stats (current month)
             const now = new Date();
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
             const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -511,14 +580,15 @@
             document.getElementById('statEndDate').value = lastDay;
 
             updateCategories();
+            updateAssetDropdown();
             initCategoryFilterOptions();
             initCharts();
             renderDashboard();
             renderTransactions();
+            renderAssets();
             renderStatistics();
             renderGoals();
             
-            // Prepare sync code
             document.getElementById('syncExportCode').value = btoa(encodeURIComponent(JSON.stringify(appData)));
         };
 
@@ -527,6 +597,7 @@
             document.getElementById('syncExportCode').value = btoa(encodeURIComponent(JSON.stringify(appData)));
             renderDashboard();
             renderTransactions();
+            renderAssets();
             renderStatistics();
             renderGoals();
             updateCharts();
@@ -549,6 +620,8 @@
                 updateCharts();
             } else if(tabId === 'statistics') {
                 renderStatistics();
+            } else if(tabId === 'assets') {
+                renderAssets();
             }
         }
 
@@ -573,6 +646,7 @@
             if (modalId === 'transactionModal') {
                 document.getElementById('transType').value = type;
                 updateCategories();
+                updateAssetDropdown();
             }
         }
 
@@ -589,6 +663,21 @@
                 opt.value = cat;
                 opt.textContent = cat;
                 catSelect.appendChild(opt);
+            });
+        }
+
+        function updateAssetDropdown() {
+            const assetSelect = document.getElementById('transAsset');
+            assetSelect.innerHTML = '';
+            if(!appData.assets || appData.assets.length === 0) {
+                assetSelect.innerHTML = '<option value="">(Belum ada aset, buat dulu di menu Aset)</option>';
+                return;
+            }
+            appData.assets.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = `${a.name} (${formatIDR(a.balance)})`;
+                assetSelect.appendChild(opt);
             });
         }
 
@@ -613,6 +702,58 @@
                 customContainer.classList.add('hidden');
             }
             renderStatistics();
+        }
+
+        // Assets Management (CRUD & Sync with balances)
+        function renderAssets() {
+            const grid = document.getElementById('assetsGrid');
+            grid.innerHTML = '';
+
+            if (!appData.assets || appData.assets.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 p-8 text-center text-xs text-slate-400 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">Belum ada aset atau dompet yang terdaftar.</div>`;
+                return;
+            }
+
+            appData.assets.forEach(a => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 relative overflow-hidden";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-0.5">
+                            <span class="text-[10px] bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 px-2.5 py-1 rounded-full font-semibold">${a.type}</span>
+                            <h4 class="font-bold text-sm pt-1.5">${a.name}</h4>
+                        </div>
+                        <button onclick="deleteAsset(${a.id})" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 hover:text-rose-600 text-slate-400 transition flex items-center justify-center"><i class="fa-solid fa-trash text-[11px]"></i></button>
+                    </div>
+                    <div class="pt-2">
+                        <p class="text-[11px] text-slate-400">Saldo Aset</p>
+                        <h3 class="text-xl font-bold ${a.balance < 0 ? 'text-rose-600' : 'text-emerald-600'}">${formatIDR(a.balance)}</h3>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function saveAsset(e) {
+            e.preventDefault();
+            const newA = {
+                id: Date.now(),
+                name: document.getElementById('assetName').value,
+                type: document.getElementById('assetType').value,
+                balance: Number(document.getElementById('assetBalance').value)
+            };
+            if(!appData.assets) appData.assets = [];
+            appData.assets.push(newA);
+            saveData();
+            closeModal('assetModal');
+            document.getElementById('assetForm').reset();
+        }
+
+        function deleteAsset(id) {
+            if(confirm("Menghapus aset ini juga akan melepaskan keterkaitannya dari transaksi terkait. Lanjutkan?")) {
+                appData.assets = appData.assets.filter(a => a.id !== id);
+                saveData();
+            }
         }
 
         function renderStatistics() {
@@ -674,6 +815,8 @@
 
             filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
                 const isInc = t.type === 'income';
+                const assetObj = appData.assets.find(a => a.id == t.assetId);
+                const assetName = assetObj ? assetObj.name : 'Dompet Umum';
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition text-xs";
                 div.innerHTML = `
@@ -683,7 +826,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold">${t.note}</h4>
-                            <p class="text-[10px] text-slate-400">${t.category} • ${t.date}</p>
+                            <p class="text-[10px] text-slate-400">${t.category} • ${assetName} • ${t.date}</p>
                         </div>
                     </div>
                     <span class="font-bold ${isInc ? 'text-emerald-600' : 'text-rose-600'}">${isInc ? '+' : '-'} ${formatIDR(t.amount)}</span>
@@ -697,24 +840,36 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
         }
 
-        // Dashboard & Metrics Rendering
+        // Dashboard & Metrics Rendering (Net worth calculated from total assets)
         function renderDashboard() {
+            let totalNetWorth = 0;
+            if(appData.assets && appData.assets.length > 0) {
+                appData.assets.forEach(a => {
+                    totalNetWorth += Number(a.balance);
+                });
+            }
+
             let totalIncome = 0;
             let totalExpense = 0;
 
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
             appData.transactions.forEach(t => {
-                if(t.type === 'income') totalIncome += Number(t.amount);
-                else totalExpense += Number(t.amount);
+                const tDate = new Date(t.date);
+                if(tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear) {
+                    if(t.type === 'income') totalIncome += Number(t.amount);
+                    else totalExpense += Number(t.amount);
+                }
             });
 
-            const balance = totalIncome - totalExpense;
-
-            document.getElementById('summaryBalance').textContent = formatIDR(balance);
+            document.getElementById('summaryBalance').textContent = formatIDR(totalNetWorth);
             document.getElementById('summaryIncome').textContent = formatIDR(totalIncome);
             document.getElementById('summaryExpense').textContent = formatIDR(totalExpense);
         }
 
-        // Transactions CRUD
+        // Transactions CRUD with Asset Integration
         function renderTransactions() {
             const query = document.getElementById('searchTransaction').value.toLowerCase();
             const filter = document.getElementById('filterType').value;
@@ -734,6 +889,8 @@
 
             filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
                 const isInc = t.type === 'income';
+                const assetObj = appData.assets.find(a => a.id == t.assetId);
+                const assetName = assetObj ? assetObj.name : 'Dompet Umum';
                 const div = document.createElement('div');
                 div.className = "flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition";
                 div.innerHTML = `
@@ -743,7 +900,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-xs">${t.note}</h4>
-                            <p class="text-[10px] text-slate-400">${t.category} • ${t.date}</p>
+                            <p class="text-[10px] text-slate-400">${t.category} • <strong class="text-emerald-600">${assetName}</strong> • ${t.date}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
@@ -757,11 +914,27 @@
 
         function saveTransaction(e) {
             e.preventDefault();
+            const amt = Number(document.getElementById('transAmount').value);
+            const type = document.getElementById('transType').value;
+            const assetId = Number(document.getElementById('transAsset').value);
+
+            // Update respective asset balance automatically
+            if(assetId && appData.assets) {
+                appData.assets = appData.assets.map(a => {
+                    if(a.id === assetId) {
+                        if(type === 'income') a.balance += amt;
+                        else a.balance -= amt;
+                    }
+                    return a;
+                });
+            }
+
             const newT = {
                 id: Date.now(),
-                type: document.getElementById('transType').value,
-                amount: Number(document.getElementById('transAmount').value),
+                type: type,
+                amount: amt,
                 category: document.getElementById('transCategory').value,
+                assetId: assetId,
                 note: document.getElementById('transNote').value,
                 date: document.getElementById('transDate').value
             };
@@ -773,7 +946,18 @@
         }
 
         function deleteTransaction(id) {
-            appData.transactions = appData.transactions.filter(t => t.id !== id);
+            const t = appData.transactions.find(item => item.id === id);
+            if(t && t.assetId && appData.assets) {
+                // Revert asset balance
+                appData.assets = appData.assets.map(a => {
+                    if(a.id === t.assetId) {
+                        if(t.type === 'income') a.balance -= Number(t.amount);
+                        else a.balance += Number(t.amount);
+                    }
+                    return a;
+                });
+            }
+            appData.transactions = appData.transactions.filter(item => item.id !== id);
             saveData();
         }
 
@@ -904,7 +1088,6 @@
             const annualReturn = Number(document.getElementById('retRate').value) / 100;
             const currentSavings = Number(document.getElementById('retCurrent').value);
 
-            // 4% Rule: Required corpus = Annual expense / 0.04
             const annualExpense = monthlyNeed * 12;
             const targetCorpus = annualExpense / 0.04;
             const gap = Math.max(0, targetCorpus - currentSavings);
@@ -945,7 +1128,6 @@
 
         function updateCharts() {
             let catMap = {};
-            let incTotal = 0, expTotal = 0;
             appData.transactions.forEach(t => {
                 if(t.type === 'expense') {
                     catMap[t.category] = (catMap[t.category] || 0) + Number(t.amount);
