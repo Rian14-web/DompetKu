@@ -275,24 +275,30 @@
 
         <!-- 6. CALCULATORS TAB -->
         <section id="calculators" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button onclick="switchCalc('compound')" id="btnCalcCompound" class="calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-primary-500 shadow-sm">
                     <i class="fa-solid fa-chart-line text-primary-600 mb-2 text-lg"></i>
-                    <h3 class="font-bold text-sm">Bunga Majemuk (Investasi)</h3>
-                    <p class="text-xs text-gray-500 mt-1">Hitung pertumbuhan aset investasi Anda.</p>
+                    <h3 class="font-bold text-sm">Bunga Majemuk</h3>
+                    <p class="text-xs text-gray-500 mt-1">Pertumbuhan aset investasi.</p>
+                </button>
+                <button onclick="switchCalc('living')" id="btnCalcLiving" class="calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                    <i class="fa-solid fa-basket-shopping text-primary-600 mb-2 text-lg"></i>
+                    <h3 class="font-bold text-sm">Biaya Hidup Bulanan</h3>
+                    <p class="text-xs text-gray-500 mt-1">Estimasi pengeluaran rutin.</p>
                 </button>
                 <button onclick="switchCalc('loan')" id="btnCalcLoan" class="calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                     <i class="fa-solid fa-file-invoice-dollar text-primary-600 mb-2 text-lg"></i>
-                    <h3 class="font-bold text-sm">Kalkulator Cicilan/Pinjaman</h3>
-                    <p class="text-xs text-gray-500 mt-1">Hitung cicilan KPR atau kendaraan.</p>
+                    <h3 class="font-bold text-sm">Cicilan Pinjaman</h3>
+                    <p class="text-xs text-gray-500 mt-1">Hitung cicilan KPR/kendaraan.</p>
                 </button>
                 <button onclick="switchCalc('retirement')" id="btnCalcRetirement" class="calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                     <i class="fa-solid fa-umbrella-beach text-primary-600 mb-2 text-lg"></i>
                     <h3 class="font-bold text-sm">Target Pensiun</h3>
-                    <p class="text-xs text-gray-500 mt-1">Rencanakan dana kebebasan finansial.</p>
+                    <p class="text-xs text-gray-500 mt-1">Rencanakan dana masa depan.</p>
                 </button>
             </div>
 
+            <!-- Compound Interest Calc -->
             <div id="calcCompoundBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <h3 class="font-bold text-base mb-4">Kalkulator Pertumbuhan Investasi</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -317,6 +323,37 @@
                 <div id="cResult" class="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 rounded-xl text-sm hidden"></div>
             </div>
 
+            <!-- Living Cost Calc (New) -->
+            <div id="calcLivingBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                    <div>
+                        <h3 class="font-bold text-base">Kalkulator Estimasi Biaya Hidup 1 Bulan</h3>
+                        <p class="text-xs text-gray-500">Sesuaikan item pengeluaran dan nominalnya sesuai gaya hidup Anda.</p>
+                    </div>
+                    <button onclick="openLivingItemModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-3.5 py-2 rounded-xl text-xs font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Tambah Item</button>
+                </div>
+                <div class="overflow-x-auto mb-4">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100 dark:border-gray-700 text-gray-400 text-xs uppercase">
+                                <th class="py-2.5 px-3">Kategori / Item Biaya</th>
+                                <th class="py-2.5 px-3 text-right">Nominal per Bulan (Rp)</th>
+                                <th class="py-2.5 px-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="livingItemsTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div>
+                        <span class="text-xs text-primary-700 dark:text-primary-300 block font-medium">Total Estimasi Biaya Hidup Bulanan:</span>
+                        <h4 id="livingTotalAmount" class="text-2xl font-bold text-primary-800 dark:text-primary-200">Rp 0</h4>
+                    </div>
+                    <button onclick="applyLivingCostToGoal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-sm"><i class="fa-solid fa-bullseye mr-1.5"></i>Jadikan Target Tabungan</button>
+                </div>
+            </div>
+
+            <!-- Loan Calc -->
             <div id="calcLoanBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hidden">
                 <h3 class="font-bold text-base mb-4">Kalkulator Cicilan Pinjaman</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -337,6 +374,7 @@
                 <div id="lResult" class="mt-4 p-4 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 rounded-xl text-sm hidden"></div>
             </div>
 
+            <!-- Retirement Calc -->
             <div id="calcRetirementBox" class="calc-box bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hidden">
                 <h3 class="font-bold text-base mb-4">Kalkulator Target Pensiun</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -455,6 +493,28 @@
         </div>
     </div>
 
+    <!-- Living Cost Item Modal -->
+    <div id="livingItemModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
+            <h3 id="livingModalTitle" class="text-base font-bold mb-4">Tambah Item Biaya Hidup</h3>
+            <form onsubmit="saveLivingItem(event)" class="space-y-4">
+                <input type="hidden" id="livingItemId">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Nama Item / Kategori Biaya</label>
+                    <input type="text" id="livingItemName" placeholder="Contoh: Makan & Minum, Transport, Kos" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Estimasi Nominal per Bulan (Rp)</label>
+                    <input type="number" id="livingItemAmount" placeholder="1500000" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('livingItemModal')" class="px-4 py-2 text-sm rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Category Manager Modal -->
     <div id="categoryModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
@@ -511,6 +571,13 @@
             ],
             assetCategories: JSON.parse(localStorage.getItem('dompetku_asset_categories')) || [
                 'Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'
+            ],
+            livingCosts: JSON.parse(localStorage.getItem('dompetku_living_costs')) || [
+                { id: '1', name: 'Makan & Minum', amount: 1500000 },
+                { id: '2', name: 'Transportasi / Bensin', amount: 400000 },
+                { id: '3', name: 'Sewa Kos / Tempat Tinggal', amount: 1200000 },
+                { id: '4', name: 'Internet & Pulsa', amount: 150000 },
+                { id: '5', name: 'Hiburan & Lain-lain', amount: 300000 }
             ]
         };
 
@@ -532,6 +599,7 @@
             localStorage.setItem('dompetku_savings', JSON.stringify(db.savings));
             localStorage.setItem('dompetku_categories', JSON.stringify(db.categories));
             localStorage.setItem('dompetku_asset_categories', JSON.stringify(db.assetCategories));
+            localStorage.setItem('dompetku_living_costs', JSON.stringify(db.livingCosts));
             updateAll();
         }
 
@@ -540,6 +608,7 @@
             renderTransactions();
             renderAssets();
             renderSavings();
+            renderLivingCosts();
             updateStatistics();
             populateAssetSelects();
             populateCategorySelects();
@@ -661,6 +730,81 @@
             db.assetCategories.push(trimmed);
             saveData();
             document.getElementById('assetCategory').value = trimmed;
+        }
+
+        // Living Cost Calculator Render & Handlers
+        function renderLivingCosts() {
+            let html = '';
+            let total = 0;
+            db.livingCosts.forEach(item => {
+                total += Number(item.amount);
+                html += `
+                    <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-900/40">
+                        <td class="py-3 px-3 font-medium">${item.name}</td>
+                        <td class="py-3 px-3 text-right font-semibold">${formatRupiah(item.amount)}</td>
+                        <td class="py-3 px-3 text-center">
+                            <button onclick="editLivingItem('${item.id}')" class="text-gray-400 hover:text-gray-600 p-1 mr-1"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteLivingItem('${item.id}')" class="text-rose-400 hover:text-rose-600 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('livingItemsTableBody').innerHTML = html || '<tr><td colspan="3" class="py-4 text-center text-xs text-gray-400">Belum ada item biaya hidup.</td></tr>';
+            document.getElementById('livingTotalAmount').innerText = formatRupiah(total);
+        }
+
+        function openLivingItemModal() {
+            document.getElementById('livingItemId').value = '';
+            document.getElementById('livingItemName').value = '';
+            document.getElementById('livingItemAmount').value = '';
+            document.getElementById('livingModalTitle').innerText = 'Tambah Item Biaya Hidup';
+            document.getElementById('livingItemModal').classList.remove('hidden');
+        }
+
+        function editLivingItem(id) {
+            const item = db.livingCosts.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('livingItemId').value = item.id;
+            document.getElementById('livingItemName').value = item.name;
+            document.getElementById('livingItemAmount').value = item.amount;
+            document.getElementById('livingModalTitle').innerText = 'Edit Item Biaya Hidup';
+            document.getElementById('livingItemModal').classList.remove('hidden');
+        }
+
+        function saveLivingItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('livingItemId').value;
+            const name = document.getElementById('livingItemName').value.trim();
+            const amount = Number(document.getElementById('livingItemAmount').value);
+
+            if(id) {
+                const item = db.livingCosts.find(i => i.id === id);
+                if(item) {
+                    item.name = name;
+                    item.amount = amount;
+                }
+            } else {
+                db.livingCosts.push({ id: Date.now().toString(), name, amount });
+            }
+            saveData();
+            closeModal('livingItemModal');
+        }
+
+        function deleteLivingItem(id) {
+            if(!confirm('Hapus item biaya ini?')) return;
+            db.livingCosts = db.livingCosts.filter(i => i.id !== id);
+            saveData();
+        }
+
+        function applyLivingCostToGoal() {
+            const total = db.livingCosts.reduce((sum, item) => sum + Number(item.amount), 0);
+            if(total <= 0) { alert('Total biaya hidup masih kosong.'); return; }
+            const goalName = prompt('Beri nama target tabungan untuk biaya hidup ini:', 'Dana Hidup Bulanan');
+            if(!goalName) return;
+            db.savings.push({ id: Date.now().toString(), name: goalName, target: total, current: 0 });
+            saveData();
+            alert(`Target "${goalName}" sebesar ${formatRupiah(total)} berhasil ditambahkan ke Tabungan!`);
+            switchTab('savings');
         }
 
         function openCategoryManagerModal() {
@@ -1189,7 +1333,7 @@
         }
 
         function switchCalc(type) {
-            ['compound', 'loan', 'retirement'].forEach(t => {
+            ['compound', 'living', 'loan', 'retirement'].forEach(t => {
                 document.getElementById(`calc${t.charAt(0).toUpperCase() + t.slice(1)}Box`).classList.add('hidden');
                 document.getElementById(`btnCalc${t.charAt(0).toUpperCase() + t.slice(1)}`).className = "calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700";
             });
@@ -1245,6 +1389,7 @@
             const totalNeeded = monthlyExp * 12 * years;
 
             const resDiv = document.getElementById('rResult');
+            resDiv.classList.add('hidden'); // using direct living cost calc instead or keep retirement
             resDiv.classList.remove('hidden');
             resDiv.innerHTML = `
                 <strong>Target Dana Pensiun:</strong><br>
@@ -1274,6 +1419,7 @@
                         db = parsed;
                         if(!db.categories) db.categories = ['Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'];
                         if(!db.assetCategories) db.assetCategories = ['Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'];
+                        if(!db.livingCosts) db.livingCosts = [{ id: '1', name: 'Makan & Minum', amount: 1500000 }];
                         saveData();
                         alert('Data berhasil diimpor!');
                     } else {
