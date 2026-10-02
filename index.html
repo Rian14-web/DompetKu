@@ -179,7 +179,7 @@
             </div>
         </section>
 
-        <!-- 3. BUDGETING TAB (NEW) -->
+        <!-- 3. BUDGETING TAB -->
         <section id="budgeting" class="tab-content hidden space-y-6">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -465,7 +465,7 @@
         </div>
     </div>
 
-    <!-- Budget Modal (NEW) -->
+    <!-- Budget Modal -->
     <div id="budgetModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
             <h3 id="budgetModalTitle" class="text-base font-bold mb-4">Buat / Edit Budgeting</h3>
@@ -509,6 +509,21 @@
                     <button type="submit" class="px-4 py-2 text-sm rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium">Simpan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal (Replaces native browser confirm) -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm p-6 rounded-2xl shadow-xl text-center">
+            <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirmTitle" class="font-bold text-base mb-1">Konfirmasi Aksi</h3>
+            <p id="confirmMessage" class="text-xs text-gray-500 mb-6">Apakah Anda yakin ingin melanjutkan aksi ini?</p>
+            <div class="flex space-x-3">
+                <button type="button" onclick="closeConfirmModal(false)" class="flex-1 py-2.5 text-sm rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 font-medium">Batal</button>
+                <button type="button" id="confirmYesBtn" class="flex-1 py-2.5 text-sm rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium">Ya, Lanjutkan</button>
+            </div>
         </div>
     </div>
 
@@ -736,6 +751,26 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
         }
 
+        // Custom Confirm Modal Helper
+        let currentConfirmCallback = null;
+        function showConfirm(title, message, callback) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            currentConfirmCallback = callback;
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmYesBtn').onclick = () => {
+                closeConfirmModal(true);
+            };
+        }
+
+        function closeConfirmModal(isYes) {
+            document.getElementById('confirmModal').classList.add('hidden');
+            if (isYes && typeof currentConfirmCallback === 'function') {
+                currentConfirmCallback();
+            }
+            currentConfirmCallback = null;
+        }
+
         function populateAssetSelects() {
             const selectTx = document.getElementById('txAssetId');
             const selectDest = document.getElementById('txDestAssetId');
@@ -872,7 +907,6 @@
             const now = new Date();
 
             db.budgets.forEach(b => {
-                // Calculate spent amount based on period and category
                 let spent = 0;
                 db.transactions.forEach(t => {
                     if(t.type !== 'expense') return;
@@ -882,7 +916,6 @@
                     let matchesPeriod = false;
 
                     if(b.period === 'weekly') {
-                        // Current week
                         const startOfWeek = new Date(now);
                         startOfWeek.setDate(now.getDate() - now.getDay());
                         matchesPeriod = tDate >= startOfWeek;
@@ -996,9 +1029,10 @@
         }
 
         function deleteBudget(id) {
-            if(!confirm('Hapus budget ini?')) return;
-            db.budgets = db.budgets.filter(b => b.id !== id);
-            saveData();
+            showConfirm('Hapus Budget', 'Apakah Anda yakin ingin menghapus budget ini?', () => {
+                db.budgets = db.budgets.filter(b => b.id !== id);
+                saveData();
+            });
         }
 
         function applyLivingCostToBudget() {
@@ -1073,9 +1107,10 @@
         }
 
         function deleteLivingItem(id) {
-            if(!confirm('Hapus item biaya ini?')) return;
-            db.livingCosts = db.livingCosts.filter(i => i.id !== id);
-            saveData();
+            showConfirm('Hapus Item Biaya', 'Apakah Anda yakin ingin menghapus item biaya ini?', () => {
+                db.livingCosts = db.livingCosts.filter(i => i.id !== id);
+                saveData();
+            });
         }
 
         function openCategoryManagerModal() {
@@ -1115,10 +1150,11 @@
                 alert('Minimal harus ada satu kategori!');
                 return;
             }
-            if(!confirm(`Hapus kategori "${name}"?`)) return;
-            db.categories = db.categories.filter(c => c !== name);
-            saveData();
-            renderCategoryList();
+            showConfirm('Hapus Kategori', `Hapus kategori "${name}"?`, () => {
+                db.categories = db.categories.filter(c => c !== name);
+                saveData();
+                renderCategoryList();
+            });
         }
 
         function openAssetCategoryManagerModal() {
@@ -1158,10 +1194,11 @@
                 alert('Minimal harus ada satu kategori aset!');
                 return;
             }
-            if(!confirm(`Hapus kategori aset "${name}"?`)) return;
-            db.assetCategories = db.assetCategories.filter(c => c !== name);
-            saveData();
-            renderAssetCategoryList();
+            showConfirm('Hapus Kategori Aset', `Hapus kategori aset "${name}"?`, () => {
+                db.assetCategories = db.assetCategories.filter(c => c !== name);
+                saveData();
+                renderAssetCategoryList();
+            });
         }
 
         function renderDashboard() {
@@ -1566,30 +1603,31 @@
         }
 
         function deleteTransaction(id) {
-            if(!confirm('Hapus transaksi ini? Saldo akan disesuaikan kembali.')) return;
-            const txIndex = db.transactions.findIndex(t => t.id === id);
-            if(txIndex > -1) {
-                const t = db.transactions[txIndex];
-                if(t.type === 'income') {
-                    const assetObj = db.assets.find(a => a.id === t.assetId);
-                    if(assetObj) assetObj.balance -= Number(t.amount);
-                } else if(t.type === 'expense') {
-                    if(t.sourceType === 'savings') {
-                        const goalObj = db.savings.find(g => g.id === t.savingsId);
-                        if(goalObj) goalObj.current += Number(t.amount);
-                    } else {
+            showConfirm('Hapus Transaksi', 'Apakah Anda yakin ingin menghapus transaksi ini? Saldo akan disesuaikan kembali.', () => {
+                const txIndex = db.transactions.findIndex(t => t.id === id);
+                if(txIndex > -1) {
+                    const t = db.transactions[txIndex];
+                    if(t.type === 'income') {
                         const assetObj = db.assets.find(a => a.id === t.assetId);
+                        if(assetObj) assetObj.balance -= Number(t.amount);
+                    } else if(t.type === 'expense') {
+                        if(t.sourceType === 'savings') {
+                            const goalObj = db.savings.find(g => g.id === t.savingsId);
+                            if(goalObj) goalObj.current += Number(t.amount);
+                        } else {
+                            const assetObj = db.assets.find(a => a.id === t.assetId);
+                            if(assetObj) assetObj.balance += Number(t.amount);
+                        }
+                    } else if(t.type === 'transfer') {
+                        const assetObj = db.assets.find(a => a.id === t.assetId);
+                        const destObj = db.assets.find(a => a.id === t.destAssetId);
                         if(assetObj) assetObj.balance += Number(t.amount);
+                        if(destObj) destObj.balance -= Number(t.amount);
                     }
-                } else if(t.type === 'transfer') {
-                    const assetObj = db.assets.find(a => a.id === t.assetId);
-                    const destObj = db.assets.find(a => a.id === t.destAssetId);
-                    if(assetObj) assetObj.balance += Number(t.amount);
-                    if(destObj) destObj.balance -= Number(t.amount);
+                    db.transactions.splice(txIndex, 1);
+                    saveData();
                 }
-                db.transactions.splice(txIndex, 1);
-                saveData();
-            }
+            });
         }
 
         function saveAsset(e) {
@@ -1614,9 +1652,10 @@
         }
 
         function deleteAsset(id) {
-            if(!confirm('Hapus aset ini?')) return;
-            db.assets = db.assets.filter(a => a.id !== id);
-            saveData();
+            showConfirm('Hapus Aset', 'Apakah Anda yakin ingin menghapus aset ini?', () => {
+                db.assets = db.assets.filter(a => a.id !== id);
+                saveData();
+            });
         }
 
         function saveGoal(e) {
@@ -1643,9 +1682,10 @@
         }
 
         function deleteGoal(id) {
-            if(!confirm('Hapus target tabungan ini?')) return;
-            db.savings = db.savings.filter(g => g.id !== id);
-            saveData();
+            showConfirm('Hapus Target Tabungan', 'Apakah Anda yakin ingin menghapus target tabungan ini?', () => {
+                db.savings = db.savings.filter(g => g.id !== id);
+                saveData();
+            });
         }
 
         function addSavingsAmount(id) {
