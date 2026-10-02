@@ -3,13 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DompetKu - Aplikasi Pengaturan Keuangan & Budgeting</title>
+    <title>DompetKu - Aplikasi Pengaturan Keuangan & Budgeting Cloud</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase App & Services CDN (Modular v10) -->
+    <script type="module">
+       // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBKE-1Mg8IzTAD7ae9Vd6NTA3ycFTAMYSE",
+  authDomain: "dompetku-fjrryno.firebaseapp.com",
+  projectId: "dompetku-fjrryno",
+  storageBucket: "dompetku-fjrryno.firebasestorage.app",
+  messagingSenderId: "920743871526",
+  appId: "1:920743871526:web:c83256cb6a3c3e868212e7",
+  measurementId: "G-XT122NW5GR"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+        // Expose to window for global app usage
+        window.FB = { auth, dbCloud, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, getDoc, setDoc, onSnapshot };
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -25,8 +54,39 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans transition-colors duration-300 min-h-screen pb-20">
 
+    <!-- Auth Overlay / Login Screen -->
+    <div id="authScreen" class="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-8 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
+            <div class="text-center mb-6">
+                <div class="inline-flex bg-primary-600 text-white p-3 rounded-2xl shadow-lg mb-3">
+                    <i class="fa-solid fa-wallet text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">DompetKu Cloud</h2>
+                <p class="text-xs text-gray-500 mt-1">Sinkronisasi data keuangan antar Laptop, Tablet & HP secara real-time.</p>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                    <input type="email" id="authEmail" placeholder="nama@email.com" required class="w-full p-3 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" required class="w-full p-3 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div id="authError" class="text-xs text-rose-600 font-medium hidden"></div>
+                <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl text-sm shadow-md transition">Masuk / Login</button>
+            </form>
+            
+            <div class="mt-6 text-center text-xs">
+                <span id="authToggleText" class="text-gray-500">Belum punya akun?</span>
+                <button type="button" onclick="toggleAuthMode()" id="authToggleBtn" class="text-primary-600 font-bold ml-1 hover:underline">Daftar Akun Baru</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header / Navbar -->
-    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="bg-primary-600 text-white p-2 rounded-xl shadow-md">
@@ -34,17 +94,16 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">DompetKu</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Atur Keuangan, Budgeting & Asetmu</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span> Cloud Sync Aktif</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <button onclick="exportData()" title="Ekspor Data" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
+                <button onclick="exportData()" title="Ekspor Data JSON" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm">
                     <i class="fa-solid fa-download"></i>
                 </button>
-                <label title="Impor Data" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
-                    <input type="file" id="importFile" class="hidden" onchange="importData(event)">
-                </label>
+                <button onclick="handleLogout()" title="Keluar Akun" class="p-2 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 hover:bg-rose-100 text-sm">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
                 <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
                     <i id="themeIcon" class="fa-solid fa-moon"></i>
                 </button>
@@ -648,56 +707,131 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT APP LOGIC & CLOUD SYNC -->
     <script>
         let db = {
-            assets: JSON.parse(localStorage.getItem('dompetku_assets')) || [
+            assets: [
                 { id: '1', name: 'Dompet Tunai', category: 'Kas / Bank', balance: 500000 },
                 { id: '2', name: 'BCA Utama', category: 'Kas / Bank', balance: 3500000 }
             ],
-            transactions: JSON.parse(localStorage.getItem('dompetku_tx')) || [],
-            savings: JSON.parse(localStorage.getItem('dompetku_savings')) || [
+            transactions: [],
+            savings: [
                 { id: '1', name: 'Dana Darurat', target: 10000000, current: 2500000, sourceAssetId: '2' }
             ],
-            categories: JSON.parse(localStorage.getItem('dompetku_categories')) || [
+            categories: [
                 'Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'
             ],
-            assetCategories: JSON.parse(localStorage.getItem('dompetku_asset_categories')) || [
+            assetCategories: [
                 'Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'
             ],
-            livingCosts: JSON.parse(localStorage.getItem('dompetku_living_costs')) || [
+            livingCosts: [
                 { id: '1', name: 'Makan & Minum', amount: 1500000 },
                 { id: '2', name: 'Transportasi / Bensin', amount: 400000 },
                 { id: '3', name: 'Sewa Kos / Tempat Tinggal', amount: 1200000 },
                 { id: '4', name: 'Internet & Pulsa', amount: 150000 },
                 { id: '5', name: 'Hiburan & Lain-lain', amount: 300000 }
             ],
-            budgets: JSON.parse(localStorage.getItem('dompetku_budgets')) || [
+            budgets: [
                 { id: '1', name: 'Budget Biaya Hidup Bulanan', limit: 3550000, period: 'monthly', startDate: '', endDate: '', category: 'ALL' }
             ]
         };
 
+        let currentUserId = null;
+        let isSignUpMode = false;
         let expenseChartInstance = null;
         let comparisonChartInstance = null;
+        let unsubscribeFirestore = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
                 document.getElementById('themeIcon').className = 'fa-solid fa-sun';
             }
-            updateAll();
             setDefaultDate();
+
+            // Listen to Firebase Auth state
+            const checkAuthInterval = setInterval(() => {
+                if(window.FB && window.FB.auth) {
+                    clearInterval(checkAuthInterval);
+                    window.FB.onAuthStateChanged(window.FB.auth, (user) => {
+                        if (user) {
+                            currentUserId = user.uid;
+                            document.getElementById('authScreen').classList.add('hidden');
+                            initCloudSync(user.uid);
+                        } else {
+                            currentUserId = null;
+                            if(unsubscribeFirestore) unsubscribeFirestore();
+                            document.getElementById('authScreen').classList.remove('hidden');
+                        }
+                    });
+                }
+            }, 200);
         });
 
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('authModalTitle')?.innerText;
+            document.getElementById('authSubmitBtn').innerText = isSignUpMode ? 'Daftar Akun Baru' : 'Masuk / Login';
+            document.getElementById('authToggleText').innerText = isSignUpMode ? 'Sudah punya akun?' : 'Belum punya akun?';
+            document.getElementById('authToggleBtn').innerText = isSignUpMode ? 'Masuk di sini' : 'Daftar Akun Baru';
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errDiv = document.getElementById('authError');
+            errDiv.classList.add('hidden');
+
+            try {
+                if(isSignUpMode) {
+                    await window.FB.createUserWithEmailAndPassword(window.FB.auth, email, password);
+                } else {
+                    await window.FB.signInWithEmailAndPassword(window.FB.auth, email, password);
+                }
+            } catch (err) {
+                errDiv.innerText = err.message;
+                errDiv.classList.remove('hidden');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await window.FB.signOut(window.FB.auth);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function initCloudSync(uid) {
+            const docRef = window.FB.doc(window.FB.dbCloud, "usersData", uid);
+            
+            // Realtime listener across devices (Laptop, Tablet, Phone)
+            unsubscribeFirestore = window.FB.onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    db = docSnap.data();
+                    updateAll();
+                } else {
+                    // First time login, save default data to cloud
+                    saveDataToCloud();
+                }
+            });
+        }
+
         function saveData() {
-            localStorage.setItem('dompetku_assets', JSON.stringify(db.assets));
-            localStorage.setItem('dompetku_tx', JSON.stringify(db.transactions));
-            localStorage.setItem('dompetku_savings', JSON.stringify(db.savings));
-            localStorage.setItem('dompetku_categories', JSON.stringify(db.categories));
-            localStorage.setItem('dompetku_asset_categories', JSON.stringify(db.assetCategories));
-            localStorage.setItem('dompetku_living_costs', JSON.stringify(db.livingCosts));
-            localStorage.setItem('dompetku_budgets', JSON.stringify(db.budgets));
-            updateAll();
+            if(!currentUserId) return;
+            saveDataToCloud();
+        }
+
+        async function saveDataToCloud() {
+            if(!currentUserId) return;
+            try {
+                const docRef = window.FB.doc(window.FB.dbCloud, "usersData", currentUserId);
+                await window.FB.setDoc(docRef, db);
+                updateAll();
+            } catch (err) {
+                console.error("Gagal menyimpan ke cloud:", err);
+            }
         }
 
         function updateAll() {
@@ -900,7 +1034,7 @@
             document.getElementById('assetCategory').value = trimmed;
         }
 
-        // Budgeting Module: 100% full starting limit, decreasing as expenses are made
+        // Budgeting Module
         function renderBudgets() {
             let html = '';
             const now = new Date();
@@ -937,9 +1071,7 @@
                 });
 
                 const remaining = Math.max(0, b.limit - spent);
-                // Percentage of budget remaining (starts at 100%, decreases to 0%)
                 const remainingPct = b.limit > 0 ? Math.max(0, Math.min(100, Math.round((remaining / b.limit) * 100))) : 0;
-                // Percentage used
                 const usedPct = 100 - remainingPct;
                 const isOver = spent > b.limit;
                 const periodLabel = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', custom: `Kustom (${b.startDate} s/d ${b.endDate})` }[b.period] || b.period;
@@ -1908,31 +2040,6 @@
             document.body.appendChild(dlAnchor);
             dlAnchor.click();
             dlAnchor.remove();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if(parsed.assets && parsed.transactions) {
-                        db = parsed;
-                        if(!db.categories) db.categories = ['Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'];
-                        if(!db.assetCategories) db.assetCategories = ['Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'];
-                        if(!db.livingCosts) db.livingCosts = [{ id: '1', name: 'Makan & Minum', amount: 1500000 }];
-                        if(!db.budgets) db.budgets = [{ id: '1', name: 'Budget Bulanan', limit: 3550000, period: 'monthly', category: 'ALL' }];
-                        saveData();
-                        alert('Data berhasil diimpor!');
-                    } else {
-                        alert('Format file backup tidak valid.');
-                    }
-                } catch(err) {
-                    alert('Gagal membaca file JSON.');
-                }
-            };
-            reader.readAsText(file);
         }
     </script>
 </body>
