@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DompetKu - Aplikasi Pengaturan Keuangan</title>
+    <title>DompetKu - Aplikasi Pengaturan Keuangan & Budgeting</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">DompetKu</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Atur Keuangan & Asetmu</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Atur Keuangan, Budgeting & Asetmu</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -54,6 +54,7 @@
         <div class="flex overflow-x-auto px-4 border-t border-gray-200 dark:border-gray-700 no-scrollbar">
             <button onclick="switchTab('dashboard')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-primary-600 text-primary-600 whitespace-nowrap" data-target="dashboard"><i class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
             <button onclick="switchTab('transactions')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-target="transactions"><i class="fa-solid fa-right-left mr-2"></i>Transaksi</button>
+            <button onclick="switchTab('budgeting')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-target="budgeting"><i class="fa-solid fa-scale-balanced mr-2"></i>Budgeting</button>
             <button onclick="switchTab('assets')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-target="assets"><i class="fa-solid fa-vault mr-2"></i>Aset & Dompet</button>
             <button onclick="switchTab('savings')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-target="savings"><i class="fa-solid fa-bullseye mr-2"></i>Tabungan</button>
             <button onclick="switchTab('statistics')" class="tab-btn py-3 px-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-target="statistics"><i class="fa-solid fa-chart-line mr-2"></i>Statistik</button>
@@ -178,7 +179,22 @@
             </div>
         </section>
 
-        <!-- 3. ASSETS TAB -->
+        <!-- 3. BUDGETING TAB (NEW) -->
+        <section id="budgeting" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold">Manajemen Budgeting & Estimasi Biaya Hidup</h2>
+                        <p class="text-xs text-gray-500">Atur batas pengeluaran Anda berdasarkan kalkulator biaya hidup dan periode kustom.</p>
+                    </div>
+                    <button onclick="openBudgetModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Buat Budget Baru</button>
+                </div>
+
+                <div id="budgetGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- 4. ASSETS TAB -->
         <section id="assets" class="tab-content hidden space-y-6">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -197,7 +213,7 @@
             </div>
         </section>
 
-        <!-- 4. SAVINGS GOALS TAB -->
+        <!-- 5. SAVINGS GOALS TAB -->
         <section id="savings" class="tab-content hidden space-y-6">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex justify-between items-center mb-6">
@@ -211,7 +227,7 @@
             </div>
         </section>
 
-        <!-- 5. STATISTICS TAB -->
+        <!-- 6. STATISTICS TAB -->
         <section id="statistics" class="tab-content hidden space-y-6">
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -273,7 +289,7 @@
             </div>
         </section>
 
-        <!-- 6. CALCULATORS TAB -->
+        <!-- 7. CALCULATORS TAB -->
         <section id="calculators" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button onclick="switchCalc('compound')" id="btnCalcCompound" class="calc-tab-btn p-4 rounded-2xl border text-left bg-white dark:bg-gray-800 border-primary-500 shadow-sm">
@@ -328,7 +344,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                     <div>
                         <h3 class="font-bold text-base">Kalkulator Estimasi Biaya Hidup 1 Bulan</h3>
-                        <p class="text-xs text-gray-500">Sesuaikan item pengeluaran dan nominalnya sesuai gaya hidup Anda.</p>
+                        <p class="text-xs text-gray-500">Sesuaikan item pengeluaran dan nominalnya.</p>
                     </div>
                     <button onclick="openLivingItemModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-3.5 py-2 rounded-xl text-xs font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Tambah Item</button>
                 </div>
@@ -349,7 +365,7 @@
                         <span class="text-xs text-primary-700 dark:text-primary-300 block font-medium">Total Estimasi Biaya Hidup Bulanan:</span>
                         <h4 id="livingTotalAmount" class="text-2xl font-bold text-primary-800 dark:text-primary-200">Rp 0</h4>
                     </div>
-                    <button onclick="applyLivingCostToGoal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-sm"><i class="fa-solid fa-bullseye mr-1.5"></i>Jadikan Target Tabungan</button>
+                    <button onclick="applyLivingCostToBudget()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-sm"><i class="fa-solid fa-scale-balanced mr-1.5"></i>Jadikan Budget Baru</button>
                 </div>
             </div>
 
@@ -443,6 +459,53 @@
                 </div>
                 <div class="flex justify-end space-x-2 pt-2">
                     <button type="button" onclick="closeModal('txModal')" class="px-4 py-2 text-sm rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Modal (NEW) -->
+    <div id="budgetModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
+            <h3 id="budgetModalTitle" class="text-base font-bold mb-4">Buat / Edit Budgeting</h3>
+            <form id="budgetForm" onsubmit="saveBudget(event)" class="space-y-4">
+                <input type="hidden" id="budgetId">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Nama Budget / Alokasi</label>
+                    <input type="text" id="budgetName" placeholder="Contoh: Budget Bulanan Hidup" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Batas Maksimal Pengeluaran (Rp)</label>
+                    <input type="number" id="budgetLimit" placeholder="3000000" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Periode Budget</label>
+                    <select id="budgetPeriod" onchange="toggleBudgetCustomDate()" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 mb-2">
+                        <option value="weekly">Mingguan</option>
+                        <option value="monthly" selected>Bulanan</option>
+                        <option value="yearly">Tahunan</option>
+                        <option value="custom">Kustom Tanggal</option>
+                    </select>
+                </div>
+                <div id="budgetCustomDateContainer" class="hidden grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Mulai</label>
+                        <input type="date" id="budgetStartDate" class="w-full p-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Selesai</label>
+                        <input type="date" id="budgetEndDate" class="w-full p-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Kategori Transaksi yang Dipantau</label>
+                    <select id="budgetCategory" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <option value="ALL">Semua Kategori Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('budgetModal')" class="px-4 py-2 text-sm rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200">Batal</button>
                     <button type="submit" class="px-4 py-2 text-sm rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium">Simpan</button>
                 </div>
             </form>
@@ -593,6 +656,9 @@
                 { id: '3', name: 'Sewa Kos / Tempat Tinggal', amount: 1200000 },
                 { id: '4', name: 'Internet & Pulsa', amount: 150000 },
                 { id: '5', name: 'Hiburan & Lain-lain', amount: 300000 }
+            ],
+            budgets: JSON.parse(localStorage.getItem('dompetku_budgets')) || [
+                { id: '1', name: 'Budget Biaya Hidup Bulanan', limit: 3550000, period: 'monthly', startDate: '', endDate: '', category: 'ALL' }
             ]
         };
 
@@ -615,12 +681,14 @@
             localStorage.setItem('dompetku_categories', JSON.stringify(db.categories));
             localStorage.setItem('dompetku_asset_categories', JSON.stringify(db.assetCategories));
             localStorage.setItem('dompetku_living_costs', JSON.stringify(db.livingCosts));
+            localStorage.setItem('dompetku_budgets', JSON.stringify(db.budgets));
             updateAll();
         }
 
         function updateAll() {
             renderDashboard();
             renderTransactions();
+            renderBudgets();
             renderAssets();
             renderSavings();
             renderLivingCosts();
@@ -629,6 +697,7 @@
             populateCategorySelects();
             populateAssetCategorySelects();
             populateGoalSourceSelects();
+            populateBudgetCategorySelects();
         }
 
         function setDefaultDate() {
@@ -701,6 +770,15 @@
             if(selectGoalSource) selectGoalSource.innerHTML = options;
         }
 
+        function populateBudgetCategorySelects() {
+            const selectBudgetCat = document.getElementById('budgetCategory');
+            let html = '<option value="ALL">Semua Kategori Pengeluaran</option>';
+            db.categories.forEach(c => {
+                html += `<option value="${c}">${c}</option>`;
+            });
+            if(selectBudgetCat) selectBudgetCat.innerHTML = html;
+        }
+
         function populateCategorySelects() {
             const txCatSelect = document.getElementById('txCategory');
             const currentTxCat = txCatSelect.value;
@@ -750,6 +828,16 @@
             }
         }
 
+        function toggleBudgetCustomDate() {
+            const period = document.getElementById('budgetPeriod').value;
+            const customContainer = document.getElementById('budgetCustomDateContainer');
+            if(period === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+            }
+        }
+
         function promptAddCategoryInModal() {
             const newCat = prompt('Masukkan nama kategori transaksi baru:');
             if(!newCat) return;
@@ -776,6 +864,154 @@
             db.assetCategories.push(trimmed);
             saveData();
             document.getElementById('assetCategory').value = trimmed;
+        }
+
+        // Budgeting Module Logic
+        function renderBudgets() {
+            let html = '';
+            const now = new Date();
+
+            db.budgets.forEach(b => {
+                // Calculate spent amount based on period and category
+                let spent = 0;
+                db.transactions.forEach(t => {
+                    if(t.type !== 'expense') return;
+                    if(b.category !== 'ALL' && t.category !== b.category) return;
+
+                    const tDate = new Date(t.date);
+                    let matchesPeriod = false;
+
+                    if(b.period === 'weekly') {
+                        // Current week
+                        const startOfWeek = new Date(now);
+                        startOfWeek.setDate(now.getDate() - now.getDay());
+                        matchesPeriod = tDate >= startOfWeek;
+                    } else if(b.period === 'monthly') {
+                        matchesPeriod = tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear();
+                    } else if(b.period === 'yearly') {
+                        matchesPeriod = tDate.getFullYear() === now.getFullYear();
+                    } else if(b.period === 'custom' && b.startDate && b.endDate) {
+                        matchesPeriod = t.date >= b.startDate && t.date <= b.endDate;
+                    } else {
+                        matchesPeriod = true;
+                    }
+
+                    if(matchesPeriod) {
+                        spent += Number(t.amount);
+                    }
+                });
+
+                const pct = Math.min(100, Math.round((spent / b.limit) * 100));
+                const isOver = spent > b.limit;
+                const periodLabel = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', custom: `Kustom (${b.startDate} s/d ${b.endDate})` }[b.period] || b.period;
+
+                html += `
+                    <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="text-xs bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded font-medium">${periodLabel}</span>
+                                    <span class="text-xs text-gray-400 ml-2">Kat: ${b.category === 'ALL' ? 'Semua' : b.category}</span>
+                                </div>
+                                <div class="space-x-1">
+                                    <button onclick="editBudget('${b.id}')" class="text-gray-400 hover:text-gray-600 p-1" title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                    <button onclick="deleteBudget('${b.id}')" class="text-rose-400 hover:text-rose-600 p-1" title="Hapus"><i class="fa-solid fa-trash text-xs"></i></button>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-base mb-1">${b.name}</h4>
+                        </div>
+                        <div class="my-3">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Terpakai: <strong class="${isOver ? 'text-rose-600 font-bold' : ''}">${formatRupiah(spent)}</strong></span>
+                                <span>Batas: <strong>${formatRupiah(b.limit)}</strong></span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
+                                <div class="${isOver ? 'bg-rose-600' : 'bg-primary-600'} h-2.5 rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-gray-200 dark:border-gray-800">
+                            <span class="${isOver ? 'text-rose-600 font-bold' : 'text-primary-600 font-semibold'}">${pct}% Terpakai</span>
+                            <span class="text-gray-400">Sisa: ${formatRupiah(Math.max(0, b.limit - spent))}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('budgetGrid').innerHTML = html || '<p class="text-gray-400 text-sm col-span-full text-center py-6">Belum ada budget yang dibuat.</p>';
+        }
+
+        function openBudgetModal() {
+            document.getElementById('budgetId').value = '';
+            document.getElementById('budgetName').value = '';
+            document.getElementById('budgetLimit').value = '';
+            document.getElementById('budgetPeriod').value = 'monthly';
+            document.getElementById('budgetStartDate').value = '';
+            document.getElementById('budgetEndDate').value = '';
+            document.getElementById('budgetCategory').value = 'ALL';
+            toggleBudgetCustomDate();
+            document.getElementById('budgetModalTitle').innerText = 'Buat Budget Baru';
+            document.getElementById('budgetModal').classList.remove('hidden');
+        }
+
+        function editBudget(id) {
+            const b = db.budgets.find(item => item.id === id);
+            if(!b) return;
+            document.getElementById('budgetId').value = b.id;
+            document.getElementById('budgetName').value = b.name;
+            document.getElementById('budgetLimit').value = b.limit;
+            document.getElementById('budgetPeriod').value = b.period;
+            document.getElementById('budgetStartDate').value = b.startDate || '';
+            document.getElementById('budgetEndDate').value = b.endDate || '';
+            document.getElementById('budgetCategory').value = b.category || 'ALL';
+            toggleBudgetCustomDate();
+            document.getElementById('budgetModalTitle').innerText = 'Edit Budget';
+            document.getElementById('budgetModal').classList.remove('hidden');
+        }
+
+        function saveBudget(e) {
+            e.preventDefault();
+            const id = document.getElementById('budgetId').value;
+            const name = document.getElementById('budgetName').value.trim();
+            const limit = Number(document.getElementById('budgetLimit').value);
+            const period = document.getElementById('budgetPeriod').value;
+            const startDate = document.getElementById('budgetStartDate').value;
+            const endDate = document.getElementById('budgetEndDate').value;
+            const category = document.getElementById('budgetCategory').value;
+
+            if(id) {
+                const b = db.budgets.find(item => item.id === id);
+                if(b) {
+                    b.name = name;
+                    b.limit = limit;
+                    b.period = period;
+                    b.startDate = startDate;
+                    b.endDate = endDate;
+                    b.category = category;
+                }
+            } else {
+                db.budgets.push({ id: Date.now().toString(), name, limit, period, startDate, endDate, category });
+            }
+            saveData();
+            closeModal('budgetModal');
+        }
+
+        function deleteBudget(id) {
+            if(!confirm('Hapus budget ini?')) return;
+            db.budgets = db.budgets.filter(b => b.id !== id);
+            saveData();
+        }
+
+        function applyLivingCostToBudget() {
+            const total = db.livingCosts.reduce((sum, item) => sum + Number(item.amount), 0);
+            if(total <= 0) { alert('Total biaya hidup masih kosong.'); return; }
+            const bName = prompt('Beri nama untuk budget dari kalkulator biaya hidup ini:', 'Budget Biaya Hidup Bulanan');
+            if(!bName) return;
+
+            openBudgetModal();
+            document.getElementById('budgetName').value = bName;
+            document.getElementById('budgetLimit').value = total;
+            document.getElementById('budgetPeriod').value = 'monthly';
+            toggleBudgetCustomDate();
         }
 
         // Living Cost Calculator Render & Handlers
@@ -840,18 +1076,6 @@
             if(!confirm('Hapus item biaya ini?')) return;
             db.livingCosts = db.livingCosts.filter(i => i.id !== id);
             saveData();
-        }
-
-        function applyLivingCostToGoal() {
-            const total = db.livingCosts.reduce((sum, item) => sum + Number(item.amount), 0);
-            if(total <= 0) { alert('Total biaya hidup masih kosong.'); return; }
-            const goalName = prompt('Beri nama target tabungan untuk biaya hidup ini:', 'Dana Hidup Bulanan');
-            if(!goalName) return;
-            
-            openGoalModal();
-            document.getElementById('goalName').value = goalName;
-            document.getElementById('goalTarget').value = total;
-            document.getElementById('goalCurrent').value = 0;
         }
 
         function openCategoryManagerModal() {
@@ -1273,7 +1497,6 @@
             const savingsId = document.getElementById('txSavingsId').value;
             const destAssetId = document.getElementById('txDestAssetId').value;
 
-            // If editing, revert old transaction balance impact first
             if (id) {
                 const oldTx = db.transactions.find(t => t.id === id);
                 if (oldTx) {
@@ -1297,7 +1520,6 @@
                 }
             }
 
-            // Apply new transaction impact
             if (type === 'income') {
                 const assetObj = db.assets.find(a => a.id === assetId);
                 if (!assetObj) { alert('Pilih aset penerima yang valid!'); return; }
@@ -1630,6 +1852,7 @@
                         if(!db.categories) db.categories = ['Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'];
                         if(!db.assetCategories) db.assetCategories = ['Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'];
                         if(!db.livingCosts) db.livingCosts = [{ id: '1', name: 'Makan & Minum', amount: 1500000 }];
+                        if(!db.budgets) db.budgets = [{ id: '1', name: 'Budget Bulanan', limit: 3550000, period: 'monthly', category: 'ALL' }];
                         saveData();
                         alert('Data berhasil diimpor!');
                     } else {
