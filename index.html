@@ -184,8 +184,8 @@
             <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
-                        <h2 class="text-lg font-bold">Manajemen Budgeting & Estimasi Biaya Hidup</h2>
-                        <p class="text-xs text-gray-500">Atur batas pengeluaran Anda berdasarkan kalkulator biaya hidup dan periode kustom.</p>
+                        <h2 class="text-lg font-bold">Manajemen Budgeting & Rincian Kategori</h2>
+                        <p class="text-xs text-gray-500">Pantau batas pengeluaran, kategori terpantau, serta rincian transaksi & persentasenya.</p>
                     </div>
                     <button onclick="openBudgetModal()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Buat Budget Baru</button>
                 </div>
@@ -512,7 +512,7 @@
         </div>
     </div>
 
-    <!-- Custom Confirmation Modal (Replaces native browser confirm) -->
+    <!-- Custom Confirmation Modal -->
     <div id="confirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-sm p-6 rounded-2xl shadow-xl text-center">
             <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-3 text-xl">
@@ -751,7 +751,6 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
         }
 
-        // Custom Confirm Modal Helper
         let currentConfirmCallback = null;
         function showConfirm(title, message, callback) {
             document.getElementById('confirmTitle').innerText = title;
@@ -901,13 +900,16 @@
             document.getElementById('assetCategory').value = trimmed;
         }
 
-        // Budgeting Module Logic
+        // Budgeting Module Logic with Breakdown & Category Details
         function renderBudgets() {
             let html = '';
             const now = new Date();
 
             db.budgets.forEach(b => {
                 let spent = 0;
+                let categoryBreakdown = {}; // store amount per category
+                let matchedTransactions = [];
+
                 db.transactions.forEach(t => {
                     if(t.type !== 'expense') return;
                     if(b.category !== 'ALL' && t.category !== b.category) return;
@@ -931,6 +933,8 @@
 
                     if(matchesPeriod) {
                         spent += Number(t.amount);
+                        matchedTransactions.push(t);
+                        categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + Number(t.amount);
                     }
                 });
 
@@ -938,13 +942,35 @@
                 const isOver = spent > b.limit;
                 const periodLabel = { weekly: 'Mingguan', monthly: 'Bulanan', yearly: 'Tahunan', custom: `Kustom (${b.startDate} s/d ${b.endDate})` }[b.period] || b.period;
 
+                // Build category breakdown pills/details HTML
+                let breakdownHtml = '';
+                const catEntries = Object.entries(categoryBreakdown);
+                if(catEntries.length > 0) {
+                    breakdownHtml += `<div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/60 space-y-1.5"><span class="text-xs font-bold text-gray-400 uppercase block mb-1">Rincian Kategori Digunakan:</span>`;
+                    catEntries.forEach(([catName, catAmount]) => {
+                        const catPct = b.limit > 0 ? Math.round((catAmount / b.limit) * 100) : 0;
+                        breakdownHtml += `
+                            <div class="flex justify-between items-center text-xs bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-100 dark:border-gray-700">
+                                <span class="font-medium text-gray-700 dark:text-gray-300"><i class="fa-solid fa-tag text-primary-500 mr-1.5 text-[10px]"></i>${catName}</span>
+                                <div class="text-right">
+                                    <span class="font-bold">${formatRupiah(catAmount)}</span>
+                                    <span class="text-[10px] text-gray-400 ml-1">(${catPct}%)</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    breakdownHtml += `</div>`;
+                } else {
+                    breakdownHtml += `<div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/60 text-xs text-gray-400 italic">Belum ada transaksi pada kategori ini untuk periode ini.</div>`;
+                }
+
                 html += `
                     <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-start mb-2">
                                 <div>
                                     <span class="text-xs bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded font-medium">${periodLabel}</span>
-                                    <span class="text-xs text-gray-400 ml-2">Kat: ${b.category === 'ALL' ? 'Semua' : b.category}</span>
+                                    <span class="text-xs text-gray-400 ml-2">Dipantau: <strong class="text-gray-700 dark:text-gray-300">${b.category === 'ALL' ? 'Semua Kategori' : b.category}</strong></span>
                                 </div>
                                 <div class="space-x-1">
                                     <button onclick="editBudget('${b.id}')" class="text-gray-400 hover:text-gray-600 p-1" title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
@@ -962,9 +988,12 @@
                                 <div class="${isOver ? 'bg-rose-600' : 'bg-primary-600'} h-2.5 rounded-full" style="width: ${pct}%"></div>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-xs pt-2 border-t border-gray-200 dark:border-gray-800">
-                            <span class="${isOver ? 'text-rose-600 font-bold' : 'text-primary-600 font-semibold'}">${pct}% Terpakai</span>
-                            <span class="text-gray-400">Sisa: ${formatRupiah(Math.max(0, b.limit - spent))}</span>
+                        
+                        ${breakdownHtml}
+
+                        <div class="flex justify-between items-center text-xs pt-3 mt-2 border-t border-gray-200 dark:border-gray-800">
+                            <span class="${isOver ? 'text-rose-600 font-bold' : 'text-primary-600 font-semibold'}">${pct}% Total Terpakai</span>
+                            <span class="text-gray-400">Sisa Budget: ${formatRupiah(Math.max(0, b.limit - spent))}</span>
                         </div>
                     </div>
                 `;
