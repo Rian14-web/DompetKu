@@ -33,7 +33,6 @@
             const auth = getAuth(app);
             const dbCloud = getFirestore(app);
 
-            // Simpan ke window agar bisa diakses skrip global
             window.FB = { 
                 auth, dbCloud, 
                 signInWithEmailAndPassword, 
@@ -62,6 +61,14 @@
     </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans transition-colors duration-300 min-h-screen pb-20">
+
+    <!-- Toast Notification Overlay -->
+    <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-medium">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-lg"></i>
+            <span id="toastMessage">Aksi berhasil disimpan!</span>
+        </div>
+    </div>
 
     <!-- Auth Overlay / Login Screen -->
     <div id="authScreen" class="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -211,6 +218,7 @@
                         <p class="text-xs text-gray-500">Semua riwayat arus kas masuk dan keluar.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
+                        <button onclick="openCategoryManagerModal()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-xl text-xs font-semibold flex items-center"><i class="fa-solid fa-tags mr-1.5"></i>Kelola Kategori</button>
                         <button onclick="openTransactionModal('income')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-plus mr-1"></i>Pemasukan</button>
                         <button onclick="openTransactionModal('expense')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm"><i class="fa-solid fa-minus mr-1"></i>Pengeluaran</button>
                     </div>
@@ -751,6 +759,30 @@
         let comparisonChartInstance = null;
         let unsubscribeFirestore = null;
 
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const content = document.getElementById('toastContent');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+
+            msgEl.innerText = message;
+            if(type === 'success') {
+                content.className = 'bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-medium';
+                iconEl.className = 'fa-solid fa-circle-check text-lg';
+            } else {
+                content.className = 'bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-medium';
+                iconEl.className = 'fa-solid fa-triangle-exclamation text-lg';
+            }
+
+            toast.classList.remove('opacity-0', '-translate-y-28');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-28');
+            }, 3000);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -799,8 +831,10 @@
             try {
                 if(isSignUpMode) {
                     await window.FB.createUserWithEmailAndPassword(window.FB.auth, email, password);
+                    showToast("Akun berhasil didaftarkan!");
                 } else {
                     await window.FB.signInWithEmailAndPassword(window.FB.auth, email, password);
+                    showToast("Berhasil masuk ke akun!");
                 }
             } catch (err) {
                 errDiv.innerText = err.message;
@@ -812,6 +846,7 @@
             try {
                 if(window.FB && window.FB.auth) {
                     await window.FB.signOut(window.FB.auth);
+                    showToast("Berhasil keluar akun.");
                 }
             } catch (err) {
                 console.error(err);
@@ -824,6 +859,8 @@
             unsubscribeFirestore = window.FB.onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     db = docSnap.data();
+                    if(!db.categories) db.categories = ['Makanan & Minuman', 'Transportasi', 'Belanja', 'Tagihan & Utilitas', 'Gaji', 'Lainnya'];
+                    if(!db.assetCategories) db.assetCategories = ['Kas / Bank', 'Investasi', 'Properti', 'Kendaraan', 'Utang / Liabilitas'];
                     updateAll();
                 } else {
                     saveDataToCloud();
@@ -831,19 +868,21 @@
             });
         }
 
-        function saveData() {
+        function saveData(successMsg = "Perubahan berhasil disimpan!") {
             if(!currentUserId) return;
-            saveDataToCloud();
+            saveDataToCloud(successMsg);
         }
 
-        async function saveDataToCloud() {
+        async function saveDataToCloud(successMsg = "Perubahan berhasil disimpan!") {
             if(!currentUserId || !window.FB) return;
             try {
                 const docRef = window.FB.doc(window.FB.dbCloud, "usersData", currentUserId);
                 await window.FB.setDoc(docRef, db);
                 updateAll();
+                if(successMsg) showToast(successMsg);
             } catch (err) {
                 console.error("Gagal menyimpan ke cloud:", err);
+                showToast("Gagal menyimpan ke cloud!", "error");
             }
         }
 
@@ -962,6 +1001,7 @@
 
         function populateCategorySelects() {
             const txCatSelect = document.getElementById('txCategory');
+            if(!txCatSelect) return;
             const currentTxCat = txCatSelect.value;
             let txCatHtml = '';
             db.categories.forEach(c => {
@@ -973,6 +1013,7 @@
             }
 
             const statCatSelect = document.getElementById('statCategoryFilter');
+            if(!statCatSelect) return;
             const currentStatCat = statCatSelect.value;
             let statCatHtml = '<option value="">Semua Kategori</option>';
             db.categories.forEach(c => {
@@ -984,6 +1025,7 @@
 
         function populateAssetCategorySelects() {
             const assetCatSelect = document.getElementById('assetCategory');
+            if(!assetCatSelect) return;
             const currentVal = assetCatSelect.value;
             let html = '';
             db.assetCategories.forEach(c => {
@@ -1025,11 +1067,12 @@
             const trimmed = newCat.trim();
             if(!trimmed) return;
             if(db.categories.includes(trimmed)) {
-                alert('Kategori sudah ada!');
+                showToast('Kategori sudah ada!', 'error');
                 return;
             }
             db.categories.push(trimmed);
-            saveData();
+            saveData("Kategori baru berhasil ditambahkan!");
+            populateCategorySelects();
             document.getElementById('txCategory').value = trimmed;
         }
 
@@ -1039,11 +1082,12 @@
             const trimmed = newCat.trim();
             if(!trimmed) return;
             if(db.assetCategories.includes(trimmed)) {
-                alert('Kategori aset sudah ada!');
+                showToast('Kategori aset sudah ada!', 'error');
                 return;
             }
             db.assetCategories.push(trimmed);
-            saveData();
+            saveData("Kategori aset baru berhasil ditambahkan!");
+            populateAssetCategorySelects();
             document.getElementById('assetCategory').value = trimmed;
         }
 
@@ -1198,20 +1242,20 @@
             } else {
                 db.budgets.push({ id: Date.now().toString(), name, limit, period, startDate, endDate, category });
             }
-            saveData();
+            saveData("Budget berhasil disimpan!");
             closeModal('budgetModal');
         }
 
         function deleteBudget(id) {
             showConfirm('Hapus Budget', 'Apakah Anda yakin ingin menghapus budget ini?', () => {
                 db.budgets = db.budgets.filter(b => b.id !== id);
-                saveData();
+                saveData("Budget berhasil dihapus.");
             });
         }
 
         function applyLivingCostToBudget() {
             const total = db.livingCosts.reduce((sum, item) => sum + Number(item.amount), 0);
-            if(total <= 0) { alert('Total biaya hidup masih kosong.'); return; }
+            if(total <= 0) { showToast('Total biaya hidup masih kosong.', 'error'); return; }
             const bName = prompt('Beri nama untuk budget dari kalkulator biaya hidup ini (Mulai 100%):', 'Budget Biaya Hidup Bulanan');
             if(!bName) return;
 
@@ -1275,14 +1319,14 @@
             } else {
                 db.livingCosts.push({ id: Date.now().toString(), name, amount });
             }
-            saveData();
+            saveData("Item biaya hidup berhasil disimpan!");
             closeModal('livingItemModal');
         }
 
         function deleteLivingItem(id) {
             showConfirm('Hapus Item Biaya', 'Apakah Anda yakin ingin menghapus item biaya ini?', () => {
                 db.livingCosts = db.livingCosts.filter(i => i.id !== id);
-                saveData();
+                saveData("Item biaya hidup berhasil dihapus.");
             });
         }
 
@@ -1309,24 +1353,28 @@
             const name = document.getElementById('newCatName').value.trim();
             if(!name) return;
             if(db.categories.includes(name)) {
-                alert('Kategori sudah ada!');
+                showToast('Kategori sudah ada!', 'error');
                 return;
             }
             db.categories.push(name);
             document.getElementById('newCatName').value = '';
-            saveData();
+            saveData("Kategori transaksi berhasil ditambahkan!");
             renderCategoryList();
+            populateCategorySelects();
+            populateBudgetCategorySelects();
         }
 
         function deleteCustomCategory(name) {
             if(db.categories.length <= 1) {
-                alert('Minimal harus ada satu kategori!');
+                showToast('Minimal harus ada satu kategori!', 'error');
                 return;
             }
             showConfirm('Hapus Kategori', `Hapus kategori "${name}"?`, () => {
                 db.categories = db.categories.filter(c => c !== name);
-                saveData();
+                saveData("Kategori berhasil dihapus.");
                 renderCategoryList();
+                populateCategorySelects();
+                populateBudgetCategorySelects();
             });
         }
 
@@ -1353,24 +1401,26 @@
             const name = document.getElementById('newAssetCatName').value.trim();
             if(!name) return;
             if(db.assetCategories.includes(name)) {
-                alert('Kategori aset sudah ada!');
+                showToast('Kategori aset sudah ada!', 'error');
                 return;
             }
             db.assetCategories.push(name);
             document.getElementById('newAssetCatName').value = '';
-            saveData();
+            saveData("Kategori aset berhasil ditambahkan!");
             renderAssetCategoryList();
+            populateAssetCategorySelects();
         }
 
         function deleteCustomAssetCategory(name) {
             if(db.assetCategories.length <= 1) {
-                alert('Minimal harus ada satu kategori aset!');
+                showToast('Minimal harus ada satu kategori aset!', 'error');
                 return;
             }
             showConfirm('Hapus Kategori Aset', `Hapus kategori aset "${name}"?`, () => {
                 db.assetCategories = db.assetCategories.filter(c => c !== name);
-                saveData();
+                saveData("Kategori aset berhasil dihapus.");
                 renderAssetCategoryList();
+                populateAssetCategorySelects();
             });
         }
 
@@ -1577,6 +1627,7 @@
             document.getElementById('txAmount').value = '';
             document.getElementById('txSourceType').value = 'asset';
             toggleTxSourceType();
+            populateCategorySelects();
             
             const titleMap = { income: 'Tambah Pemasukan', expense: 'Tambah Pengeluaran', transfer: 'Transfer Saldo Aset' };
             document.getElementById('txModalTitle').innerText = titleMap[type];
@@ -1611,6 +1662,7 @@
             document.getElementById('txDate').value = tx.date;
             document.getElementById('txNote').value = tx.note;
             document.getElementById('txAmount').value = tx.amount;
+            populateCategorySelects();
             
             const titleMap = { income: 'Edit Pemasukan', expense: 'Edit Pengeluaran', transfer: 'Edit Transfer Saldo' };
             document.getElementById('txModalTitle').innerText = titleMap[tx.type];
@@ -1653,6 +1705,7 @@
             document.getElementById('assetName').value = '';
             document.getElementById('assetBalance').value = '';
             document.getElementById('assetModalTitle').innerText = 'Tambah Aset / Dompet';
+            populateAssetCategorySelects();
             document.getElementById('assetModal').classList.remove('hidden');
         }
 
@@ -1661,6 +1714,7 @@
             if(!asset) return;
             document.getElementById('assetId').value = asset.id;
             document.getElementById('assetName').value = asset.name;
+            populateAssetCategorySelects();
             document.getElementById('assetCategory').value = asset.category;
             document.getElementById('assetBalance').value = asset.balance;
             document.getElementById('assetModalTitle').innerText = 'Edit Aset / Dompet';
@@ -1732,24 +1786,24 @@
 
             if (type === 'income') {
                 const assetObj = db.assets.find(a => a.id === assetId);
-                if (!assetObj) { alert('Pilih aset penerima yang valid!'); return; }
+                if (!assetObj) { showToast('Pilih aset penerima yang valid!', 'error'); return; }
                 assetObj.balance += amount;
             } else if (type === 'expense') {
                 if(sourceType === 'savings') {
                     const goalObj = db.savings.find(g => g.id === savingsId);
-                    if (!goalObj) { alert('Pilih target tabungan yang valid!'); return; }
-                    if (goalObj.current < amount) { alert('Saldo tabungan tidak mencukupi!'); return; }
+                    if (!goalObj) { showToast('Pilih target tabungan yang valid!', 'error'); return; }
+                    if (goalObj.current < amount) { showToast('Saldo tabungan tidak mencukupi!', 'error'); return; }
                     goalObj.current -= amount;
                 } else {
                     const assetObj = db.assets.find(a => a.id === assetId);
-                    if (!assetObj) { alert('Pilih aset sumber yang valid!'); return; }
+                    if (!assetObj) { showToast('Pilih aset sumber yang valid!', 'error'); return; }
                     assetObj.balance -= amount;
                 }
             } else if (type === 'transfer') {
-                if (assetId === destAssetId) { alert('Aset sumber dan tujuan tidak boleh sama!'); return; }
+                if (assetId === destAssetId) { showToast('Aset sumber dan tujuan tidak boleh sama!', 'error'); return; }
                 const assetObj = db.assets.find(a => a.id === assetId);
                 const destObj = db.assets.find(a => a.id === destAssetId);
-                if (!assetObj || !destObj) { alert('Aset tidak valid!'); return; }
+                if (!assetObj || !destObj) { showToast('Aset tidak valid!', 'error'); return; }
                 assetObj.balance -= amount;
                 destObj.balance += amount;
             }
@@ -1771,7 +1825,7 @@
                 db.transactions.unshift(newTxData);
             }
 
-            saveData();
+            saveData("Transaksi berhasil disimpan!");
             closeModal('txModal');
         }
 
@@ -1798,7 +1852,7 @@
                         if(destObj) destObj.balance -= Number(t.amount);
                     }
                     db.transactions.splice(txIndex, 1);
-                    saveData();
+                    saveData("Transaksi berhasil dihapus.");
                 }
             });
         }
@@ -1820,14 +1874,14 @@
             } else {
                 db.assets.push({ id: Date.now().toString(), name, category, balance });
             }
-            saveData();
+            saveData("Aset berhasil disimpan!");
             closeModal('assetModal');
         }
 
         function deleteAsset(id) {
             showConfirm('Hapus Aset', 'Apakah Anda yakin ingin menghapus aset ini?', () => {
                 db.assets = db.assets.filter(a => a.id !== id);
-                saveData();
+                saveData("Aset berhasil dihapus.");
             });
         }
 
@@ -1850,14 +1904,14 @@
             } else {
                 db.savings.push({ id: Date.now().toString(), name, target, current, sourceAssetId });
             }
-            saveData();
+            saveData("Target tabungan berhasil disimpan!");
             closeModal('goalModal');
         }
 
         function deleteGoal(id) {
             showConfirm('Hapus Target Tabungan', 'Apakah Anda yakin ingin menghapus target tabungan ini?', () => {
                 db.savings = db.savings.filter(g => g.id !== id);
-                saveData();
+                saveData("Target tabungan berhasil dihapus.");
             });
         }
 
@@ -1867,7 +1921,7 @@
             const addVal = prompt(`Masukkan jumlah tambahan tabungan untuk "${goal.name}":`, '100000');
             if(addVal && !isNaN(addVal)) {
                 goal.current += Number(addVal);
-                saveData();
+                saveData("Tabungan berhasil ditambahkan!");
             }
         }
 
@@ -2051,6 +2105,7 @@
             document.body.appendChild(dlAnchor);
             dlAnchor.click();
             dlAnchor.remove();
+            showToast("Data berhasil diekspor!");
         }
     </script>
 </body>
