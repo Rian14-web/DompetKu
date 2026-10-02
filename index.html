@@ -11,32 +11,41 @@
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase App & Services CDN (Modular v10) -->
+    <!-- Firebase SDK Modular (Loaded as Module with Your Config) -->
     <script type="module">
-       // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBKE-1Mg8IzTAD7ae9Vd6NTA3ycFTAMYSE",
-  authDomain: "dompetku-fjrryno.firebaseapp.com",
-  projectId: "dompetku-fjrryno",
-  storageBucket: "dompetku-fjrryno.firebasestorage.app",
-  messagingSenderId: "920743871526",
-  appId: "1:920743871526:web:c83256cb6a3c3e868212e7",
-  measurementId: "G-XT122NW5GR"
-};
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKE-1Mg8IzTAD7ae9Vd6NTA3ycFTAMYSE",
+            authDomain: "dompetku-fjrryno.firebaseapp.com",
+            projectId: "dompetku-fjrryno",
+            storageBucket: "dompetku-fjrryno.firebasestorage.app",
+            messagingSenderId: "920743871526",
+            appId: "1:920743871526:web:c83256cb6a3c3e868212e7",
+            measurementId: "G-XT122NW5GR"
+        };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        try {
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const dbCloud = getFirestore(app);
 
-        // Expose to window for global app usage
-        window.FB = { auth, dbCloud, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, getDoc, setDoc, onSnapshot };
+            // Simpan ke window agar bisa diakses skrip global
+            window.FB = { 
+                auth, dbCloud, 
+                signInWithEmailAndPassword, 
+                createUserWithEmailAndPassword, 
+                signOut, onAuthStateChanged, 
+                doc, getDoc, setDoc, onSnapshot,
+                isReady: true 
+            };
+            console.log("Firebase berhasil diinisialisasi.");
+        } catch (err) {
+            console.error("Gagal menginisialisasi Firebase.", err);
+        }
     </script>
 
     <script>
@@ -749,7 +758,6 @@ const analytics = getAnalytics(app);
             }
             setDefaultDate();
 
-            // Listen to Firebase Auth state
             const checkAuthInterval = setInterval(() => {
                 if(window.FB && window.FB.auth) {
                     clearInterval(checkAuthInterval);
@@ -765,12 +773,11 @@ const analytics = getAnalytics(app);
                         }
                     });
                 }
-            }, 200);
+            }, 100);
         });
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
-            document.getElementById('authModalTitle')?.innerText;
             document.getElementById('authSubmitBtn').innerText = isSignUpMode ? 'Daftar Akun Baru' : 'Masuk / Login';
             document.getElementById('authToggleText').innerText = isSignUpMode ? 'Sudah punya akun?' : 'Belum punya akun?';
             document.getElementById('authToggleBtn').innerText = isSignUpMode ? 'Masuk di sini' : 'Daftar Akun Baru';
@@ -782,6 +789,12 @@ const analytics = getAnalytics(app);
             const password = document.getElementById('authPassword').value;
             const errDiv = document.getElementById('authError');
             errDiv.classList.add('hidden');
+
+            if (!window.FB || !window.FB.auth) {
+                errDiv.innerText = "Firebase belum siap atau konfigurasi belum diisi dengan benar.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
 
             try {
                 if(isSignUpMode) {
@@ -797,7 +810,9 @@ const analytics = getAnalytics(app);
 
         async function handleLogout() {
             try {
-                await window.FB.signOut(window.FB.auth);
+                if(window.FB && window.FB.auth) {
+                    await window.FB.signOut(window.FB.auth);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -806,13 +821,11 @@ const analytics = getAnalytics(app);
         function initCloudSync(uid) {
             const docRef = window.FB.doc(window.FB.dbCloud, "usersData", uid);
             
-            // Realtime listener across devices (Laptop, Tablet, Phone)
             unsubscribeFirestore = window.FB.onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     db = docSnap.data();
                     updateAll();
                 } else {
-                    // First time login, save default data to cloud
                     saveDataToCloud();
                 }
             });
@@ -824,7 +837,7 @@ const analytics = getAnalytics(app);
         }
 
         async function saveDataToCloud() {
-            if(!currentUserId) return;
+            if(!currentUserId || !window.FB) return;
             try {
                 const docRef = window.FB.doc(window.FB.dbCloud, "usersData", currentUserId);
                 await window.FB.setDoc(docRef, db);
@@ -1034,7 +1047,6 @@ const analytics = getAnalytics(app);
             document.getElementById('assetCategory').value = trimmed;
         }
 
-        // Budgeting Module
         function renderBudgets() {
             let html = '';
             const now = new Date();
@@ -1210,7 +1222,6 @@ const analytics = getAnalytics(app);
             toggleBudgetCustomDate();
         }
 
-        // Living Cost Calculator Render & Handlers
         function renderLivingCosts() {
             let html = '';
             let total = 0;
