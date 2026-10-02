@@ -859,6 +859,37 @@
             }
         }
 
+        async function handleForgotPassword() {
+            const email = document.getElementById('authEmail').value.trim();
+            const errDiv = document.getElementById('authError');
+            errDiv.classList.add('hidden');
+
+            if (!email) {
+                errDiv.innerText = "Masukkan terlebih dahulu email Anda pada kolom Email di atas.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            if (!window.FB || !window.FB.auth) {
+                errDiv.innerText = "Firebase belum siap.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+                await sendPasswordResetEmail(window.FB.auth, email);
+                showToast("Email instruksi reset password telah dikirim ke " + email, "success");
+            } catch (err) {
+                errDiv.innerText = err.message;
+                errDiv.classList.remove('hidden');
+            }
+        }
+        // ===================================
+
+        function initCloudSync(uid) {
+            // ... (kode selanjutnya di bawah ini)
+
         function initCloudSync(uid) {
             const docRef = window.FB.doc(window.FB.dbCloud, "usersData", uid);
             
