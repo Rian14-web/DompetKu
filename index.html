@@ -415,7 +415,7 @@
                     <label class="block text-xs font-medium text-gray-500 mb-1">Jumlah (Rp)</label>
                     <input type="number" id="txAmount" placeholder="100000" required class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                 </div>
-                <div>
+                <div id="txSourceTypeContainer">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Ambil Sumber Dana Dari</label>
                     <select id="txSourceType" onchange="toggleTxSourceType()" class="w-full p-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 mb-2">
                         <option value="asset">Aset / Rekening Utama</option>
@@ -481,7 +481,7 @@
     <!-- Savings Goal Modal -->
     <div id="goalModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md p-6 rounded-2xl shadow-xl">
-            <h3 class="text-base font-bold mb-4">Tambah Target Tabungan</h3>
+            <h3 id="goalModalTitle" class="text-base font-bold mb-4">Tambah Target Tabungan</h3>
             <form id="goalForm" onsubmit="saveGoal(event)" class="space-y-4">
                 <input type="hidden" id="goalId">
                 <div>
@@ -848,7 +848,6 @@
             const goalName = prompt('Beri nama target tabungan untuk biaya hidup ini:', 'Dana Hidup Bulanan');
             if(!goalName) return;
             
-            // Open goal modal prefilled
             openGoalModal();
             document.getElementById('goalName').value = goalName;
             document.getElementById('goalTarget').value = total;
@@ -997,6 +996,10 @@
                 if(t.sourceType === 'savings') {
                     const goalObj = db.savings.find(g => g.id === t.savingsId);
                     sourceDisplay = `Tabungan: ${goalObj ? goalObj.name : '?'}`;
+                } else if(t.type === 'transfer') {
+                    const assetObj = db.assets.find(a => a.id === t.assetId);
+                    const destObj = db.assets.find(a => a.id === t.destAssetId);
+                    sourceDisplay = `${assetObj ? assetObj.name : '?'} ➔ ${destObj ? destObj.name : '?'}`;
                 } else {
                     const assetObj = db.assets.find(a => a.id === t.assetId);
                     sourceDisplay = assetObj ? assetObj.name : 'Aset Dihapus';
@@ -1059,8 +1062,9 @@
                         <td class="py-3 px-3 text-xs text-gray-500">${sourceDisplay}</td>
                         <td class="py-3 px-3 text-xs"><span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${t.category || 'Transfer'}</span></td>
                         <td class="py-3 px-3 text-right font-bold ${amountColor}">${sign}${formatRupiah(t.amount)}</td>
-                        <td class="py-3 px-3 text-center">
-                            <button onclick="deleteTransaction('${t.id}')" class="text-rose-500 hover:text-rose-700 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-3 px-3 text-center space-x-1">
+                            <button onclick="editTransaction('${t.id}')" class="text-primary-500 hover:text-primary-700 text-xs p-1" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteTransaction('${t.id}')" class="text-rose-500 hover:text-rose-700 text-xs p-1" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -1106,7 +1110,10 @@
                     <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">
                         <div class="flex justify-between items-start mb-2">
                             <h4 class="font-bold text-sm">${g.name}</h4>
-                            <button onclick="deleteGoal('${g.id}')" class="text-rose-400 hover:text-rose-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <div class="space-x-1">
+                                <button onclick="editGoal('${g.id}')" class="text-gray-400 hover:text-gray-600 text-xs p-1" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteGoal('${g.id}')" class="text-rose-400 hover:text-rose-600 text-xs p-1" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
                         <div class="text-xs text-primary-600 dark:text-primary-400 font-medium mb-2 flex items-center">
                             <i class="fa-solid fa-vault mr-1.5"></i> Asal Dana: ${sourceName}
@@ -1131,6 +1138,7 @@
         function openTransactionModal(type) {
             document.getElementById('txId').value = '';
             document.getElementById('txType').value = type;
+            document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('txNote').value = '';
             document.getElementById('txAmount').value = '';
             document.getElementById('txSourceType').value = 'asset';
@@ -1141,7 +1149,7 @@
 
             const catContainer = document.getElementById('txCategoryContainer');
             const destContainer = document.getElementById('txDestAssetContainer');
-            const sourceTypeContainer = document.getElementById('txSourceType').parentElement;
+            const sourceTypeContainer = document.getElementById('txSourceTypeContainer');
 
             if (type === 'transfer') {
                 catContainer.classList.add('hidden');
@@ -1155,6 +1163,52 @@
                 catContainer.classList.remove('hidden');
                 destContainer.classList.add('hidden');
                 sourceTypeContainer.classList.remove('hidden');
+            }
+
+            document.getElementById('txModal').classList.remove('hidden');
+        }
+
+        function editTransaction(id) {
+            const tx = db.transactions.find(t => t.id === id);
+            if(!tx) return;
+
+            document.getElementById('txId').value = tx.id;
+            document.getElementById('txType').value = tx.type;
+            document.getElementById('txDate').value = tx.date;
+            document.getElementById('txNote').value = tx.note;
+            document.getElementById('txAmount').value = tx.amount;
+            
+            const titleMap = { income: 'Edit Pemasukan', expense: 'Edit Pengeluaran', transfer: 'Edit Transfer Saldo' };
+            document.getElementById('txModalTitle').innerText = titleMap[tx.type];
+
+            const catContainer = document.getElementById('txCategoryContainer');
+            const destContainer = document.getElementById('txDestAssetContainer');
+            const sourceTypeContainer = document.getElementById('txSourceTypeContainer');
+
+            if(tx.type === 'transfer') {
+                catContainer.classList.add('hidden');
+                destContainer.classList.remove('hidden');
+                sourceTypeContainer.classList.add('hidden');
+                document.getElementById('txAssetId').value = tx.assetId;
+                document.getElementById('txDestAssetId').value = tx.destAssetId;
+            } else if(tx.type === 'income') {
+                catContainer.classList.remove('hidden');
+                destContainer.classList.add('hidden');
+                sourceTypeContainer.classList.add('hidden');
+                document.getElementById('txAssetId').value = tx.assetId;
+                document.getElementById('txCategory').value = tx.category;
+            } else {
+                catContainer.classList.remove('hidden');
+                destContainer.classList.add('hidden');
+                sourceTypeContainer.classList.remove('hidden');
+                document.getElementById('txSourceType').value = tx.sourceType || 'asset';
+                toggleTxSourceType();
+                if(tx.sourceType === 'savings') {
+                    document.getElementById('txSavingsId').value = tx.savingsId;
+                } else {
+                    document.getElementById('txAssetId').value = tx.assetId;
+                }
+                document.getElementById('txCategory').value = tx.category;
             }
 
             document.getElementById('txModal').classList.remove('hidden');
@@ -1184,7 +1238,21 @@
             document.getElementById('goalName').value = '';
             document.getElementById('goalTarget').value = '';
             document.getElementById('goalCurrent').value = '0';
+            document.getElementById('goalModalTitle').innerText = 'Tambah Target Tabungan';
             populateGoalSourceSelects();
+            document.getElementById('goalModal').classList.remove('hidden');
+        }
+
+        function editGoal(id) {
+            const goal = db.savings.find(g => g.id === id);
+            if(!goal) return;
+            document.getElementById('goalId').value = goal.id;
+            document.getElementById('goalName').value = goal.name;
+            document.getElementById('goalTarget').value = goal.target;
+            document.getElementById('goalCurrent').value = goal.current;
+            populateGoalSourceSelects();
+            document.getElementById('goalSourceAssetId').value = goal.sourceAssetId || '';
+            document.getElementById('goalModalTitle').innerText = 'Edit Target Tabungan';
             document.getElementById('goalModal').classList.remove('hidden');
         }
 
@@ -1194,7 +1262,7 @@
 
         function saveTransaction(e) {
             e.preventDefault();
-            const id = document.getElementById('txId').value || Date.now().toString();
+            const id = document.getElementById('txId').value;
             const type = document.getElementById('txType').value;
             const date = document.getElementById('txDate').value;
             const note = document.getElementById('txNote').value;
@@ -1205,6 +1273,31 @@
             const savingsId = document.getElementById('txSavingsId').value;
             const destAssetId = document.getElementById('txDestAssetId').value;
 
+            // If editing, revert old transaction balance impact first
+            if (id) {
+                const oldTx = db.transactions.find(t => t.id === id);
+                if (oldTx) {
+                    if(oldTx.type === 'income') {
+                        const aObj = db.assets.find(a => a.id === oldTx.assetId);
+                        if(aObj) aObj.balance -= Number(oldTx.amount);
+                    } else if(oldTx.type === 'expense') {
+                        if(oldTx.sourceType === 'savings') {
+                            const gObj = db.savings.find(g => g.id === oldTx.savingsId);
+                            if(gObj) gObj.current += Number(oldTx.amount);
+                        } else {
+                            const aObj = db.assets.find(a => a.id === oldTx.assetId);
+                            if(aObj) aObj.balance += Number(oldTx.amount);
+                        }
+                    } else if(oldTx.type === 'transfer') {
+                        const aObj = db.assets.find(a => a.id === oldTx.assetId);
+                        const dObj = db.assets.find(a => a.id === oldTx.destAssetId);
+                        if(aObj) aObj.balance += Number(oldTx.amount);
+                        if(dObj) dObj.balance -= Number(oldTx.amount);
+                    }
+                }
+            }
+
+            // Apply new transaction impact
             if (type === 'income') {
                 const assetObj = db.assets.find(a => a.id === assetId);
                 if (!assetObj) { alert('Pilih aset penerima yang valid!'); return; }
@@ -1229,15 +1322,23 @@
                 destObj.balance += amount;
             }
 
-            const newTx = { 
-                id, type, date, note, amount, 
+            const newTxData = { 
+                id: id || Date.now().toString(), 
+                type, date, note, amount, 
                 sourceType: type === 'expense' ? sourceType : 'asset',
                 assetId: type === 'expense' && sourceType === 'savings' ? null : assetId,
                 savingsId: type === 'expense' && sourceType === 'savings' ? savingsId : null,
                 destAssetId: type === 'transfer' ? destAssetId : null, 
                 category: type === 'transfer' ? 'Transfer' : category 
             };
-            db.transactions.unshift(newTx);
+
+            if (id) {
+                const index = db.transactions.findIndex(t => t.id === id);
+                if (index > -1) db.transactions[index] = newTxData;
+            } else {
+                db.transactions.unshift(newTxData);
+            }
+
             saveData();
             closeModal('txModal');
         }
@@ -1298,17 +1399,22 @@
 
         function saveGoal(e) {
             e.preventDefault();
-            const id = document.getElementById('goalId').value || Date.now().toString();
+            const id = document.getElementById('goalId').value;
             const name = document.getElementById('goalName').value;
             const target = Number(document.getElementById('goalTarget').value);
             const current = Number(document.getElementById('goalCurrent').value);
             const sourceAssetId = document.getElementById('goalSourceAssetId').value;
 
-            const existingIndex = db.savings.findIndex(g => g.id === id);
-            if(existingIndex > -1) {
-                db.savings[existingIndex] = { id, name, target, current, sourceAssetId };
+            if(id) {
+                const goal = db.savings.find(g => g.id === id);
+                if(goal) {
+                    goal.name = name;
+                    goal.target = target;
+                    goal.current = current;
+                    goal.sourceAssetId = sourceAssetId;
+                }
             } else {
-                db.savings.push({ id, name, target, current, sourceAssetId });
+                db.savings.push({ id: Date.now().toString(), name, target, current, sourceAssetId });
             }
             saveData();
             closeModal('goalModal');
